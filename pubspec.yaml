@@ -41,6 +41,9 @@ dependencies:
   excel: ^2.0.7
   latlong2: ^0.9.1
   flutter_map: ^7.0.2
+  lite_rolling_switch: ^1.0.1
+  image_picker: ^0.8.7+5
+  image: ^4.0.17
 
 dev_dependencies:
   flutter_test:
