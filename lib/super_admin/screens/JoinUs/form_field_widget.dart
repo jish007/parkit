@@ -121,16 +121,15 @@ class _RightContainerState extends State<RightContainer> {
                 ),
                 SizedBox(height: 24.0),
                 // Name and Phone Fields
-                _buildLabeledTextFieldsRow(
-                  'Name',
+                _buildLabeledTextFieldsRowWithDropdown(
+                  'Property Owner Name',
                   'Enter your name',
-                  'Phone',
-                  'Enter your phone number',
-                  JoinUsSVG.person,
-                  JoinUsSVG.phone,
-                  _nameController,
-                  _phoneController,
-                  isSmallScreen,
+                  'Roles',
+                  roles,
+                  // Roles options
+                  _adminNameController,
+                  // Pass the list of selected roles
+                  isSmallScreen
                 ),
                 // Country and State Dropdowns
                 _buildDropdownTextFieldsRow(
@@ -153,22 +152,23 @@ class _RightContainerState extends State<RightContainer> {
                   isSmallScreen,
                 ),
                 // Admin Name and Roles (Dropdown for Roles)
-                _buildLabeledTextFieldsRowWithDropdown(
+                _buildLabeledTextFieldsRow(
                   'Admin Name',
                   'Enter your admin name',
-                  'Roles',
-                  roles,
-                  // Roles options
-                  _adminNameController,
-                  // Pass the list of selected roles
-                  isSmallScreen,
+                  'Admin Phone Number',
+                  'Enter phone number of admin',
+                  JoinUsSVG.person,
+                  JoinUsSVG.phone,
+                  _nameController,
+                  _phoneController,
+                  isSmallScreen
                 ),
                 // Email and Password Fields
                 _buildLabeledTextFieldsRow(
-                  'Email*',
-                  'Enter your email',
+                  'Email',
+                  'Enter email of admin',
                   'Password',
-                  'Enter your password',
+                  'Enter password',
                   JoinUsSVG.email,
                   JoinUsSVG.lock,
                   _emailController,
@@ -491,37 +491,6 @@ class _RightContainerState extends State<RightContainer> {
     );
   }
 
-  Widget _buildGroundDetails(String label, String hint, String iconPath) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 16.0, color: Colors.white),
-        ),
-        SizedBox(height: 8.0),
-        TextField(
-          readOnly: true,
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
-            ),
-            prefixIcon: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SvgPicture.asset(
-                iconPath,
-                color: Color.fromARGB(255, 235, 231, 11),
-              ),
-            ),
-          ),
-          style: TextStyle(color: Colors.white),
-        ),
-      ],
-    );
-  }
-
   Widget _buildToggleAndImageUpload(
     String leftLabel,
     String leftHint,
@@ -583,9 +552,7 @@ class _RightContainerState extends State<RightContainer> {
           _buildLabeledTextFieldWithSeparateButtons(leftLabel, leftHint,
               leftIconPath, leftButtonLabel, leftController),
           SizedBox(height: 12.0),
-          isGround
-              ? _buildGroundDetails('Ground', 'Give', JoinUsSVG.phone)
-              : _buildLabeledTextFieldWithSeparateButtons(
+          _buildLabeledTextFieldWithSeparateButtons(
                   'Upload', '', rightIconPath, rightButtonLabel, null),
         ],
       );
@@ -599,9 +566,7 @@ class _RightContainerState extends State<RightContainer> {
           ),
           SizedBox(width: 12.0),
           Expanded(
-            child: isGround
-                ? _buildGroundDetails('Ground', 'Give', JoinUsSVG.phone)
-                : _buildLabeledTextFieldWithSeparateButtons(
+            child: _buildLabeledTextFieldWithSeparateButtons(
                     'Upload', '', rightIconPath, rightButtonLabel, null),
           ),
         ],
@@ -999,7 +964,9 @@ class _RightContainerState extends State<RightContainer> {
           'adminName': _adminNameController.text.toString(),
           'userDto': userData,
           'roleDto': roleData,
-          'ratesDto': ratesData
+          'ratesDto': ratesData,
+          'adminPhone': _phoneController.text.toString(),
+          'propertyType': propertyType
         }),
       );
       print('Status Code: ${res.statusCode}');
