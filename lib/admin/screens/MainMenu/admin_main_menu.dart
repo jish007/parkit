@@ -6,7 +6,9 @@ import 'package:park_it/admin/screens/MainMenu/ParkingSpace/parking_space.dart';
 import 'package:park_it/admin/screens/MainMenu/Profile/profile_page.dart';
 
 class AdminMainMenu extends StatefulWidget {
-  const AdminMainMenu({super.key});
+  final String adminMail;
+
+  const AdminMainMenu({super.key,required this.adminMail});
 
   @override
   _AdminMainMenuState createState() => _AdminMainMenuState();
@@ -16,13 +18,19 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
   int _selectedIndex = 0;
   final TextEditingController _searchController = TextEditingController();
 
-  final List<Widget> _pages = [
-    DashboardPage(),
-    ParkingSpacePage(),
-    HistoryPage(),
-    ActionScreen(),
-    ProfilePage(), // Add ProfilePage to the pages list
-  ];
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      DashboardPage(adminMail: widget.adminMail), // Pass adminMail here
+      ParkingSpacePage(adminMail: widget.adminMail,),
+      HistoryPage(adminMail: widget.adminMail),
+      ActionScreen(),
+      ProfilePage(),
+    ];
+  }
 
   void _onItemTap(int index) {
     setState(() {

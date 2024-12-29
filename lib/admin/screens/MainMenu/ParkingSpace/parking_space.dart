@@ -1,50 +1,42 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'dart:async';
+import 'package:http/browser_client.dart';
+import 'package:park_it/admin/screens/MainMenu/DashBoard/helpers/slots_model.dart';
+import 'package:park_it/common/constants/spring_url.dart';
 
 class ParkingSpacePage extends StatefulWidget {
-  const ParkingSpacePage({super.key});
+  final String adminMail;
+  const ParkingSpacePage({super.key,required this.adminMail});
 
   @override
-  _ParkingSpacePageState createState() => _ParkingSpacePageState();
+  State<ParkingSpacePage> createState() => _ParkingSpacePageState();
 }
 
-class _ParkingSpacePageState extends State<ParkingSpacePage> {
-  // Timer variables for each parking slot (total 30 slots: 10 per section A, B, C)
-  List<int> remainingTimes = List.generate(30, (_) => 300); // Set initial time in seconds (5 minutes)
-  late List<Timer> _timers;
+class _ParkingSpacePageState extends State<ParkingSpacePage>
+    with TickerProviderStateMixin {
 
-  // Sidebar state
-  bool _isSidebarOpen = false;
-  String selectedSlot = '';
+  late Future<List<Slots>> fullSlots;
+
+  late TabController _tabController;
+
+  List<String> _floors = [];
+
+  final Map<String, List<String>> _parkingSpaces = {};
+
+  final Set<String> _bookedSpaces = {};
 
   @override
   void initState() {
     super.initState();
-
-    // Initialize timers for all slots
-    _timers = List.generate(
-      30,
-      (index) => Timer.periodic(
-        const Duration(seconds: 1),
-        (timer) {
-          setState(() {
-            if (remainingTimes[index] > 0) {
-              remainingTimes[index]--;
-            } else {
-              timer.cancel();
-            }
-          });
-        },
-      ),
-    );
-
-    // Manually set some slots to 0 (unallocated) in no specific linear order
-    remainingTimes[2] = 0;  // Slot AR1C3
-    remainingTimes[4] = 0;  // Slot AR2C2
-    remainingTimes[13] = 0; // Slot BR3C1
-    remainingTimes[17] = 0; // Slot BR4C2
-    remainingTimes[22] = 0; // Slot CR1C2
-    remainingTimes[28] = 0; // Slot CR5C1
+    fullSlots = fetchSlots(widget.adminMail).then((slots) {
+      setState(() {
+        updateSlotData(slots);
+        _tabController = TabController(length: _floors.length, vsync: this);
+      });
+      return slots;
+    });
+    _tabController = TabController(length: 0, vsync: this);
   }
 
   @override
@@ -52,324 +44,268 @@ class _ParkingSpacePageState extends State<ParkingSpacePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Parking Space View',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
-            color: Color.fromARGB(255, 14, 14, 14),
-          ),
+          "Parking Space",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
         ),
-        backgroundColor: const Color.fromARGB(255, 246, 246, 248),
-        elevation: 4,
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
       ),
-      body: Stack(
-        children: [
-          // Main content
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SingleChildScrollView(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start, // Align sections to the left
-                children: [
-                  // Section A with Ac1 and Ac2 (as columns)
-                  _buildSection("A", ["AR1C1", "AR1C2", "AR1C3", "AR1C4", "AR1C5"],
-                      ["AR2C1", "AR2C2", "AR2C3", "AR2C4", "AR2C5"]),
-                  
-                  // Space before the vertical line
-                  const SizedBox(width: 20), // Add space before the line
-
-                  // Vertical line between sections
-                  _buildVerticalLine(),
-                  
-                  // Space after the vertical line
-                  const SizedBox(width: 20), // Add space after the line
-
-                  // Section B with Bc1 and Bc2 (as columns)
-                  _buildSection("B", ["BR1C1", "BR1C2", "BR1C3", "BR1C4", "BR1C5"],
-                      ["BR2C1", "BR2C2", "BR2C3", "BR2C4", "BR2C5"]),
-                  
-                  // Space before the vertical line
-                  const SizedBox(width: 20), // Add space before the line
-
-                  // Vertical line between sections
-                  _buildVerticalLine(),
-
-                  // Space after the vertical line
-                  const SizedBox(width: 20), // Add space after the line
-
-                  // Section C with Cc1 and Cc2 (as columns)
-                  _buildSection("C", ["CR1C1", "CR1C2", "CR1C3", "CR1C4", "CR1C5"],
-                      ["CR2C1", "CR2C2", "CR2C3", "CR2C4", "CR2C5"]),
-                ],
+      body: FutureBuilder<List<Slots>>(
+        future: fullSlots,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                "Error: ${snapshot.error}",
+                style: const TextStyle(color: Colors.red),
               ),
-            ),
+            );
+          } else {
+            return _floors.isEmpty
+                ? const Center(
+              child: Text(
+                "No floors available",
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+            )
+                : TabBarView(
+              controller: _tabController,
+              children: _floors
+                  .map((floor) => _buildFloorPage(floor))
+                  .toList(),
+            );
+          }
+        },
+      ),
+      bottomNavigationBar: _floors.isEmpty
+          ? null
+          : Material(
+        color: Colors.white,
+        child: TabBar(
+          controller: _tabController,
+          isScrollable: true,
+          indicator: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(25),
           ),
-          
-          // Right Sidebar
-          _buildSidebar(),
-        ],
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.grey,
+          tabs: _floors.map((floor) {
+            return Tab(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  floor,
+                  style: const TextStyle(fontSize: 20),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
 
-  // Function to build a section with two columns
-  Widget _buildSection(String sectionName, List<String> col1Slots, List<String> col2Slots) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Section $sectionName',
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.blueGrey,
-          ),
-        ),
-        const SizedBox(height: 16), // Increased space between section title and slots
-        Row(
+  Widget _buildFloorPage(String floor) {
+    final slots = _parkingSpaces[floor]!;
+    final int slotCount = slots.length;
+
+    int rows = 1;
+    int columns = slotCount;
+
+    // If the number of slots is greater than or equal to 10, split into rows with a maximum of 5 columns
+    if (slotCount >= 10) {
+      columns = 5;
+      rows = (slotCount / columns).ceil(); // Adjust rows dynamically
+    } else {
+      // For fewer than 10 slots, distribute them evenly across 2 rows
+      rows = 2;
+      columns = (slotCount / rows).ceil();
+    }
+
+    final double slotWidth = 140.0 * 1.75; // Increased by 1.75 (0.75x increase)
+    final double slotHeight = 180.0 * 1.75; // Increased by 1.75 (0.75x increase)
+    final double horizontalPadding = 15.0;
+    final double verticalPadding = 15.0;
+
+    final double gridWidth = columns * (slotWidth + 2 * horizontalPadding);
+    final double gridHeight = (rows * (slotHeight + 2 * verticalPadding));
+
+    return Padding(
+      padding: const EdgeInsets.all(15.0),
+      child: SingleChildScrollView( // Make the content scrollable
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Column 1 (e.g., AR1C1, BR1C1, CR1C1)
-            _buildParkingColumn(col1Slots),
-            const SizedBox(width: 20), // Space between columns
-            // Column 2 (e.g., AR1C2, BR1C2, CR1C2)
-            _buildParkingColumn(col2Slots),
+            Text(
+              floor,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              width: gridWidth,
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: _buildParkingGrid(floor, rows, columns, slotWidth, slotHeight),
+            ),
           ],
         ),
-      ],
-    );
-  }
-
-  // Function to build a column of parking slots
-  Widget _buildParkingColumn(List<String> slots) {
-    return Column(
-      children: [
-        // Add parking slots vertically in this column
-        for (int i = 0; i < slots.length; i++)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 20.0), // Increased space between slots
-            child: _buildParkingSlot(slots[i], slots.indexOf(slots[i])),
-          ),
-      ],
-    );
-  }
-
-  // Function to build a single parking slot with its timer and progress bar
-  Widget _buildParkingSlot(String slotName, int index) {
-    double progress = remainingTimes[index] / 300; // Calculate progress (300 seconds = 5 minutes)
-
-    // Check if the slot is unallotted (for simplicity, we can use index 0-5 as unallotted)
-    bool isUnallotted = remainingTimes[index] == 0;
-
-    return GestureDetector(
-      onTap: () {
-        // Show the sidebar when a parking slot is tapped
-        if (!isUnallotted) {
-          _openSidebar(slotName);
-        }
-      },
-      child: Column(
-        children: [
-          Text(
-            slotName,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: isUnallotted ? Colors.grey : Colors.black,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Container(
-            width: 100, // Increased width
-            height: 100, // Increased height
-            decoration: BoxDecoration(
-              gradient: isUnallotted
-                  ? const LinearGradient(
-                      colors: [Colors.grey, Colors.grey],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    )
-                  : const LinearGradient(
-                      colors: [Color.fromARGB(255, 116, 19, 201), Colors.blueAccent],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Center(
-              child: Text(
-                slotName,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: isUnallotted ? Colors.black : Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  shadows: [
-                    Shadow(
-                      blurRadius: 6.0,
-                      color: Colors.black54,
-                      offset: Offset(2.0, 2.0),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 4),
-          SizedBox(
-            width: 100, // Match width with the parking slot
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: LinearProgressIndicator(
-                value: isUnallotted ? 0 : progress,
-                minHeight: 8,
-                backgroundColor: Colors.grey[300],
-                valueColor: const AlwaysStoppedAnimation<Color>(Colors.greenAccent),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
 
-  // Function to build a vertical shaded line between sections
-  Widget _buildVerticalLine() {
-    return Container(
-      width: 2, // Make line a bit thicker
-      height: MediaQuery.of(context).size.height,
-      color: Colors.grey.withOpacity(0.5),
-    );
-  }
+  Widget _buildParkingGrid(String floor, int rows, int columns, double slotWidth, double slotHeight) {
+    final slots = _parkingSpaces[floor]!;
 
-  // Function to open the sidebar with parking slot details
-  void _openSidebar(String slotName) {
-    setState(() {
-      selectedSlot = slotName;
-      _isSidebarOpen = true;
-    });
-  }
-
-  // Sidebar widget
-  Widget _buildSidebar() {
-    return AnimatedPositioned(
-      duration: const Duration(milliseconds: 300),
-      right: _isSidebarOpen ? 0 : -350,
-      top: 0,
-      bottom: 0,
-      child: GestureDetector(
-        onTap: () {
-          // Close the sidebar when tapping outside
-          setState(() {
-            _isSidebarOpen = false;
-          });
-        },
-        child: Container(
-          width: 350,
-          color: const Color.fromARGB(255, 22, 4, 85).withOpacity(0.5),
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (int i = 0; i < rows; i++)
+          Column(
             children: [
-              const Text(
-                'Car Details',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
-              ),
-              const SizedBox(height: 16),
-              CircleAvatar(
-                radius: 50,
-                backgroundImage: NetworkImage('https://via.placeholder.com/150'), // Demo car image
-              ),
-              const SizedBox(height: 16),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  _buildShadedBox('Model: Sedan'),
-                  _buildShadedBox('Reg No: XYZ 1234'),
+                  for (int j = 0; j < columns; j++)
+                    if (i * columns + j < slots.length)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
+                        child: Container(
+                          width: slotWidth,
+                          height: slotHeight,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            image: DecorationImage(
+                              image: AssetImage('assets/admin/parking_bg4.png'),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          child: Center(
+                            child: _getParkingSlotContent(floor, i * columns + j),
+                          ),
+                        ),
+                      ),
                 ],
               ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildShadedBox('User: John Doe'),
-                  _buildShadedBox('Owner: Jane Doe'),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildShadedBox('Number Plate: ABC1234'),
-                  _buildShadedBox('City: New York'),
-                ],
-              ),
-              const SizedBox(height: 16),
-              _buildShadedBox('Payment Status: Paid'),
-              const Spacer(),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _isSidebarOpen = false; // Close sidebar on button press
-                  });
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orangeAccent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+              // Add a central container after each row (except the last row)
+              if (i < rows - 1)
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  width: double.infinity,
+                  height: 80, // Adjust the height as per your needs
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/admin/background_image.png'), // Use your desired background image
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
-                child: const Text('Close'),
-              ),
             ],
           ),
+      ],
+    );
+  }
+
+  Widget _getParkingSlotContent(String floor, int index) {
+    final slot = _parkingSpaces[floor]![index];
+    final isBooked = _bookedSpaces.contains(slot);
+
+    if (isBooked) {
+      return Image.asset(
+        'assets/admin/car_icon.png',
+        width: 280,
+        height: 280,
+      );
+    } else {
+      return Text(
+        slot,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 30,
+          color: Colors.black87,
         ),
-      ),
-    );
-  }
-
-  Widget _buildShadedBox(String text) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 5,
-            offset: const Offset(2, 2),
-          ),
-        ],
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    // Cancel all timers when the widget is disposed
-    for (var timer in _timers) {
-      timer.cancel();
+      );
     }
-    super.dispose();
   }
-}
 
-void main() {
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: ParkingSpacePage(),
-  ));
+  Future<List<Slots>> fetchSlots(String email) async {
+    try {
+      var client = BrowserClient();
+      final response =
+      await client.get(Uri.parse("${SpringUrls.getSlotsURL}?adminMailId=$email"));
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonResponse = json.decode(response.body);
+        return jsonResponse.map((data) => Slots.fromJson(data)).toList();
+      } else {
+        throw Exception(
+            "Failed to load profiles. Status code: ${response.statusCode}");
+      }
+    } catch (error) {
+      print("Error fetching profiles: $error");
+      return []; // Return an empty list in case of an error
+    }
+  }
+
+  void updateSlotData(List<Slots> fullSlots) {
+
+    // Update _floors
+    _floors.clear();
+    _floors.addAll(
+        fullSlots
+            .map((slot) => slot.floor.trim()) // Trim floor names here
+            .toSet() // Ensure unique floor names
+            .map((floor) => _formatFloorName(floor)) // Format floor names
+    );
+
+    // Update _parkingSpaces
+    _parkingSpaces.clear();
+    for (String floor in _floors) {
+      String originalFloor = _reverseFormatFloorName(floor); // Get the original floor name
+      List<String> spaces = fullSlots
+          .where((slot) => slot.floor.trim() == originalFloor) // Trim here as well
+          .map((slot) => slot.slotNumber)
+          .toList();
+      _parkingSpaces[floor] = spaces;
+    }
+
+    // Update _bookedSpaces
+    _bookedSpaces.clear();
+    _bookedSpaces.addAll(
+        fullSlots
+            .where((slot) => !slot.slotAvailability) // Check for booked slots
+            .map((slot) => slot.slotNumber)
+    );
+  }
+
+
+// Helper function to format floor names (e.g., "Ground" -> "Ground Floor")
+  String _formatFloorName(String floor) {
+    return floor.trim() + " Floor"; // Trim spaces and append " Floor"
+  }
+
+  String _reverseFormatFloorName(String formattedFloor) {
+    return formattedFloor.replaceAll(" Floor", "").trim(); // Remove " Floor" and trim
+  }
+
+
 }

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:park_it/admin/screens/Auth/admin_login_screen.dart';
 
 class LoadingScreen extends StatefulWidget {
-  const LoadingScreen({super.key});
+  final Widget destination;
+
+  const LoadingScreen({super.key, required this.destination});
 
   @override
   _LoadingScreenState createState() => _LoadingScreenState();
@@ -17,14 +19,14 @@ class _LoadingScreenState extends State<LoadingScreen>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 5),
+      duration: const Duration(seconds: 2),
     )..repeat(reverse: false);
 
     // Navigate to the login screen after 5 seconds
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 2), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
+        MaterialPageRoute(builder: (context) => widget.destination),
       );
     });
   }

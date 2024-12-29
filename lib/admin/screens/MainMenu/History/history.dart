@@ -1,14 +1,20 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/browser_client.dart';
+import 'package:park_it/admin/screens/MainMenu/DashBoard/helpers/profile_model.dart';
+import 'package:park_it/common/constants/spring_url.dart';
 
 class HistoryPage extends StatefulWidget {
-  const HistoryPage({super.key});
+  final String adminMail;
+  const HistoryPage({super.key,required this.adminMail});
 
   @override
   State<HistoryPage> createState() => _HistoryPageState();
 }
 
 class _HistoryPageState extends State<HistoryPage> {
+
+  late Future<List<Profile>> fullProfiles;
   List<Map<String, dynamic>> orders = [];
 
   @override
@@ -20,13 +26,21 @@ class _HistoryPageState extends State<HistoryPage> {
   // Function to load data from assets
   Future<void> _loadData() async {
     try {
-      // Load JSON file using DefaultAssetBundle for Flutter Web
-      final jsonString = await DefaultAssetBundle.of(context).loadString('assets/admin/data.json');
-      final List<dynamic> jsonData = json.decode(jsonString);
+      // Fetch the profiles from the API
+      List<Profile> profiles = await fullProfiles;
 
-      // Set state to update the UI with the loaded data
+      // Map the necessary key-value pairs to the orders variable
       setState(() {
-        orders = jsonData.map((e) => Map<String, dynamic>.from(e)).toList();
+        orders = profiles.map((profile) {
+          return {
+            'profileId': profile.profileId.toString(),
+            'userName': profile.userName,
+            'paidAmount': profile.paidAmount.toString(),
+            'allocatedSlotNumber': profile.allocatedSlotNumber,
+            'bookingTime': profile.bookingTime,
+            'durationOfAllocation': profile.durationOfAllocation.toString(),
+          };
+        }).toList();
       });
 
       print("Data loaded successfully: $orders");
@@ -34,6 +48,7 @@ class _HistoryPageState extends State<HistoryPage> {
       print("Error loading data: $e");
     }
   }
+
 
   // Function to handle row tap (can be extended to navigate to another screen or show a dialog)
   void _onRowTap(int index) {
@@ -47,12 +62,12 @@ class _HistoryPageState extends State<HistoryPage> {
         return AlertDialog(
           title: Text('Order Details'),
           content: Text(
-            'Id: ${order['id']}\n'
-            'Name: ${order['name']}\n'
-            'Payment: ${order['payment']}\n'
-            'Type: ${order['type']}\n'
-            'Status: ${order['status']}\n'
-            'Total: ${order['total']}',
+            'Id: ${order['profileId']}\n'
+            'Name: ${order['userName']}\n'
+            'Amount: ${order['paidAmount']}\n'
+            'Slot: ${order['allocatedSlotNumber']}\n'
+            'Time: ${order['bookingTime']}\n'
+            'Duration: ${order['durationOfAllocation']}',
           ),
           actions: [
             TextButton(
@@ -67,6 +82,13 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fullProfiles = fetchProfiles(widget.adminMail);
+  }
+
   // Function to show a popup menu when the 3 dots are clicked
   void _onMenuOptionSelected(String value, int index) {
     final order = orders[index];
@@ -76,13 +98,13 @@ class _HistoryPageState extends State<HistoryPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Profile of ${order['name']}'),
-            content: Text('Here are the details for ${order['name']}.\n\n'
-                'Id: ${order['id']}\n'
-                'Payment: ${order['payment']}\n'
-                'Type: ${order['type']}\n'
-                'Status: ${order['status']}\n'
-                'Total: ${order['total']}'),
+            title: Text('Profile of ${order['userName']}'),
+            content: Text('Here are the details for ${order['userName']}.\n\n'
+                'Id: ${order['profileId']}\n'
+                'Amount: ${order['paidAmount']}\n'
+                'Slot: ${order['allocatedSlotNumber']}\n'
+                'Time: ${order['bookingTime']}\n'
+                'Duration: ${order['durationOfAllocation']}'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -101,16 +123,6 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Icon(Icons.history, color: Colors.black), // History icon
-            SizedBox(width: 8), // Space between icon and title
-            Text('History Page', style: TextStyle(color: Colors.black)),
-          ],
-        ),
-        backgroundColor: Colors.white,
-      ),
       body: orders.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : Padding(
@@ -123,10 +135,10 @@ class _HistoryPageState extends State<HistoryPage> {
                     children: const [
                       Expanded(child: Text("Id", style: TextStyle(fontWeight: FontWeight.bold))),
                       Expanded(child: Text("Name", style: TextStyle(fontWeight: FontWeight.bold))),
-                      Expanded(child: Text("Payment", style: TextStyle(fontWeight: FontWeight.bold))),
-                      Expanded(child: Text("Type", style: TextStyle(fontWeight: FontWeight.bold))),
-                      Expanded(child: Text("Status", style: TextStyle(fontWeight: FontWeight.bold))),
-                      Expanded(child: Text("Total", style: TextStyle(fontWeight: FontWeight.bold))),
+                      Expanded(child: Text("Amount", style: TextStyle(fontWeight: FontWeight.bold))),
+                      Expanded(child: Text("Slot", style: TextStyle(fontWeight: FontWeight.bold))),
+                      Expanded(child: Text("Time", style: TextStyle(fontWeight: FontWeight.bold))),
+                      Expanded(child: Text("Duration", style: TextStyle(fontWeight: FontWeight.bold))),
                       SizedBox(width: 30), // Space for actions
                     ],
                   ),
@@ -165,37 +177,37 @@ class _HistoryPageState extends State<HistoryPage> {
                                       Expanded(
                                         child: Padding(
                                           padding: const EdgeInsets.all(24.0), // Increased padding for more height
-                                          child: Text(order['id'], style: TextStyle(color: Colors.black, fontSize: 18)),
+                                          child: Text(order['profileId'], style: TextStyle(color: Colors.black, fontSize: 18)),
                                         ),
                                       ),
                                       Expanded(
                                         child: Padding(
                                           padding: const EdgeInsets.all(24.0),
-                                          child: Text(order['name'], style: TextStyle(color: Colors.black, fontSize: 18)),
+                                          child: Text(order['userName'], style: TextStyle(color: Colors.black, fontSize: 18)),
                                         ),
                                       ),
                                       Expanded(
                                         child: Padding(
                                           padding: const EdgeInsets.all(24.0),
-                                          child: Text(order['payment'], style: TextStyle(color: Colors.black, fontSize: 18)),
+                                          child: Text(order['paidAmount'], style: TextStyle(color: Colors.black, fontSize: 18)),
                                         ),
                                       ),
                                       Expanded(
                                         child: Padding(
                                           padding: const EdgeInsets.all(24.0),
-                                          child: Text(order['type'], style: TextStyle(color: Colors.black, fontSize: 18)),
+                                          child: Text(order['allocatedSlotNumber'], style: TextStyle(color: Colors.black, fontSize: 18)),
                                         ),
                                       ),
                                       Expanded(
                                         child: Padding(
                                           padding: const EdgeInsets.all(24.0),
-                                          child: Text(order['status'], style: TextStyle(color: Colors.black, fontSize: 18)),
+                                          child: Text(order['bookingTime'], style: TextStyle(color: Colors.black, fontSize: 18)),
                                         ),
                                       ),
                                       Expanded(
                                         child: Padding(
                                           padding: const EdgeInsets.all(24.0),
-                                          child: Text(order['total'], style: TextStyle(color: Colors.black, fontSize: 18)),
+                                          child: Text(order['durationOfAllocation'], style: TextStyle(color: Colors.black, fontSize: 18)),
                                         ),
                                       ),
                                       Padding(
@@ -232,5 +244,23 @@ class _HistoryPageState extends State<HistoryPage> {
               ),
             ),
     );
+  }
+  Future<List<Profile>> fetchProfiles(String email) async {
+    try {
+      var client = BrowserClient();
+      final response =
+      await client.get(Uri.parse("${SpringUrls.getProfileURL}?adminMailId=$email"));
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonResponse = json.decode(response.body);
+        return jsonResponse.map((data) => Profile.fromJson(data)).toList();
+      } else {
+        throw Exception(
+            "Failed to load profiles. Status code: ${response.statusCode}");
+      }
+    } catch (error) {
+      print("Error fetching profiles: $error");
+      return []; // Return an empty list in case of an error
+    }
   }
 }

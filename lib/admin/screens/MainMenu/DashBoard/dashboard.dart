@@ -1,6 +1,16 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
-class DashboardPage extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:http/browser_client.dart';
+import 'package:intl/intl.dart';
+import 'package:park_it/admin/screens/MainMenu/DashBoard/cards.dart';
+import 'package:park_it/admin/screens/MainMenu/DashBoard/helpers/profile_model.dart';
+import 'package:park_it/admin/screens/MainMenu/DashBoard/helpers/slots_model.dart';
+import 'package:park_it/admin/screens/MainMenu/DashBoard/table.dart';
+import 'package:park_it/common/constants/spring_url.dart';
+
+/*class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
@@ -507,5 +517,257 @@ class ParkingSpaceCard extends StatelessWidget {
         ],
       ),
     );
+  }
+}*/
+
+class DashboardPage extends StatefulWidget {
+  final String adminMail;
+
+  const DashboardPage({super.key, required this.adminMail});
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  late List<Profile> fullProfiles;
+  late Future<List<Map<String, dynamic>>> profiles;
+
+  late Future<List<Slots>> fullSlots;
+
+  late String currentDate;
+
+  @override
+  void initState() {
+    super.initState();
+    profiles = fetchProfiles(widget.adminMail);
+    fullSlots = fetchSlots(widget.adminMail).then((slots) {
+      buildCardData(slots); // Build card data dynamically
+      return slots;
+    });
+    DateTime now = DateTime.now();
+    currentDate = DateFormat('dd/MM/yyyy').format(now);
+  }
+
+  List<Map<String, dynamic>> cardData = [
+    {
+      'number': '0',
+      'title': 'Available Parking Spaces',
+      'date': '',
+      'percentageChange': 0,
+      'color': Color.fromARGB(237, 24, 0, 181),
+      'numberColor': Colors.green,
+      'titleColor': Colors.white,
+      'dateColor': Colors.white,
+      'percentageColor': Colors.green,
+    },
+    {
+      'number': '0',
+      'title': 'Occupied Space',
+      'date': '',
+      'percentageChange': 0,
+      'color': Color.fromARGB(237, 24, 0, 181),
+      'numberColor': Colors.red,
+      'titleColor': Colors.white,
+      'dateColor': Colors.white,
+      'percentageColor': Colors.red,
+    },
+    {
+      'number': '0',
+      'title': 'Total Parking Spaces',
+      'date': '',
+      'percentageChange': 0,
+      'color': Color.fromARGB(237, 24, 0, 181),
+      'numberColor': Colors.green,
+      'titleColor': Colors.white,
+      'dateColor': Colors.white,
+      'percentageColor': Color.fromARGB(237, 24, 0, 181)
+    },
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Card Grid
+            GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3, // Display three cards per row
+                crossAxisSpacing: 20.0,
+                mainAxisSpacing: 20.0,
+                childAspectRatio: 1.5,
+              ),
+              itemCount: cardData.length,
+              shrinkWrap: true,
+              // Ensure GridView only takes the necessary space
+              physics: NeverScrollableScrollPhysics(),
+              // Disable GridView scrolling
+              itemBuilder: (context, index) {
+                var data = cardData[index];
+                return DashboardCard(
+                  number: data['number'],
+                  title: data['title'],
+                  date: data['date'],
+                  percentageChange: data['percentageChange'],
+                  color: data['color'],
+                  numberColor: data['numberColor'],
+                  titleColor: data['titleColor'],
+                  dateColor: data['dateColor'],
+                  percentageColor: data['percentageColor'],
+                );
+              },
+            ),
+
+            SizedBox(height: 70), // Add some space between the grid and table
+
+            // Header with SVG icon and "BOOKING" text
+            Row(
+              children: [
+                SvgPicture.asset(
+                  'assets/admin/alarm.svg', // Path to your local SVG asset
+                  width: 24, // Set the size of the icon
+                  height: 30,
+                ),
+                SizedBox(width: 8), // Space between the icon and the text
+                Text(
+                  'Latest Booking',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 0, 31, 204), // Text color
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 40),
+
+            // Table Container with fetched data
+            FutureBuilder<List<Map<String, dynamic>>>(
+              future: profiles,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      "Error fetching profiles: ${snapshot.error}",
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  );
+                } else if (snapshot.hasData) {
+                  return TableContainer(
+                    width: double.infinity,
+                    height: 500,
+                    backgroundColor:
+                        Color.fromARGB(255, 115, 104, 189).withOpacity(0.2),
+                    data: snapshot.data!, // Pass the fetched data to the table
+                  );
+                } else {
+                  return Center(
+                    child: Text("No profiles available."),
+                  );
+                }
+              },
+            ),
+            // Add more content here if needed
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> fetchProfiles(String email) async {
+    try {
+      var client = BrowserClient();
+      final response =
+          await client.get(Uri.parse("${SpringUrls.getProfileURL}?adminMailId=$email"));
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonResponse = json.decode(response.body);
+        fullProfiles =
+            jsonResponse.map((data) => Profile.fromJson(data)).toList();
+        return jsonResponse
+            .map((data) => {
+                  'username': data['userName'],
+                  'type': data['vehicleType'],
+                  'numberPlate': data['vehicleNumber'],
+                  'time': data['bookingDate'],
+                })
+            .toList();
+      } else {
+        throw Exception(
+            "Failed to load profiles. Status code: ${response.statusCode}");
+      }
+    } catch (error) {
+      print("Error fetching profiles: $error");
+      return []; // Return an empty list in case of an error
+    }
+  }
+
+  Future<List<Slots>> fetchSlots(String email) async {
+    try {
+      var client = BrowserClient();
+      final response =
+      await client.get(Uri.parse("${SpringUrls.getSlotsURL}?adminMailId=$email"));
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonResponse = json.decode(response.body);
+        return jsonResponse.map((data) => Slots.fromJson(data)).toList();
+      } else {
+        throw Exception(
+            "Failed to load profiles. Status code: ${response.statusCode}");
+      }
+    } catch (error) {
+      print("Error fetching profiles: $error");
+      return []; // Return an empty list in case of an error
+    }
+  }
+
+  void buildCardData(List<Slots> slots) {
+    int totalSlots = slots.length;
+    int availableSlots = slots.where((slot) => slot.slotAvailability).length;
+    int occupiedSlots = totalSlots - availableSlots;
+
+    setState(() {
+      cardData = [
+        {
+          'number': '$availableSlots',
+          'title': 'Available Parking Spaces',
+          'date': currentDate,
+          'percentageChange': (availableSlots/totalSlots * 100).toInt(),
+          'color': Color.fromARGB(237, 24, 0, 181),
+          'numberColor': Colors.green,
+          'titleColor': Colors.white,
+          'dateColor': Colors.white,
+          'percentageColor': Colors.green,
+        },
+        {
+          'number': '$occupiedSlots',
+          'title': 'Occupied Space',
+          'date': currentDate,
+          'percentageChange': (occupiedSlots/totalSlots * 100).toInt(),
+          'color': Color.fromARGB(237, 24, 0, 181),
+          'numberColor': Colors.red,
+          'titleColor': Colors.white,
+          'dateColor': Colors.white,
+          'percentageColor': Colors.red,
+        },
+        {
+          'number': '$totalSlots',
+          'title': 'Total Parking Spaces',
+          'date': currentDate,
+          'percentageChange': 0,
+          'color': Color.fromARGB(237, 24, 0, 181),
+          'numberColor': Colors.green,
+          'titleColor': Colors.white,
+          'dateColor': Colors.white,
+          'percentageColor': Color.fromARGB(237, 24, 0, 181),
+        },
+      ];
+    });
   }
 }
