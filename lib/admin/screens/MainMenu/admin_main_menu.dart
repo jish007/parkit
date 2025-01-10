@@ -28,7 +28,7 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
       ParkingSpacePage(adminMail: widget.adminMail,),
       HistoryPage(adminMail: widget.adminMail),
       ActionScreen(),
-      ProfilePage(),
+      //ProfilePage(),
     ];
   }
 
@@ -97,12 +97,12 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
                         isSelected: _selectedIndex == 3,
                         onTap: () => _onItemTap(3),
                       ),
-                      SidebarButton(
+                      /*SidebarButton(
                         title: 'Profile', // Add the Profile button
                         icon: Icons.person,
                         isSelected: _selectedIndex == 4,
                         onTap: () => _onItemTap(4),
-                      ),
+                      ),*/
                     ],
                   ),
                 ),

@@ -229,23 +229,62 @@ class _ParkingSpacePageState extends State<ParkingSpacePage>
     final slot = _parkingSpaces[floor]![index];
     final isBooked = _bookedSpaces.contains(slot);
 
-    if (isBooked) {
-      return Image.asset(
-        'assets/admin/car_icon.png',
-        width: 280,
-        height: 280,
-      );
-    } else {
-      return Text(
-        slot,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 30,
-          color: Colors.black87,
-        ),
-      );
-    }
+    // Find the slot in the fullSlots list
+    final slotDetails = fullSlots.then((slots) => slots.firstWhere(
+            (s) => s.slotNumber == slot,
+        orElse: () => Slots(
+            slotId: 0,
+            slotNumber: '',
+            floor: '',
+            vehicleType: '',
+            propertyName: '',
+            city: '',
+            district: '',
+            state: '',
+            country: '',
+            slotAvailability: true,
+            googleLocation: '',
+            adminName: '',
+            adminPhone: '',
+            propertyType: '',
+            adminMailId: '')));
+
+    return FutureBuilder<Slots>(
+      future: slotDetails,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError || !snapshot.hasData) {
+          return const Text(
+            "Error",
+            style: TextStyle(color: Colors.red),
+          );
+        }
+
+        final slotData = snapshot.data!;
+        final isCar = slotData.vehicleType.toLowerCase() == 'car';
+        final isBike = slotData.vehicleType.toLowerCase() == 'bike';
+
+        if (isBooked) {
+          return Image.asset(
+            isCar ? 'assets/admin/car_icon.png' : 'assets/admin/bike.png',
+            width: 280,
+            height: 280,
+          );
+        } else {
+          return Text(
+            slot,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 30,
+              color: Colors.black87,
+            ),
+          );
+        }
+      },
+    );
   }
+
 
   Future<List<Slots>> fetchSlots(String email) async {
     try {

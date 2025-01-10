@@ -1,6 +1,28 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-class ProfilePage extends StatelessWidget { // Renamed from DashboardPage to ProfilePage
-  const ProfilePage({super.key});
+import 'package:http/browser_client.dart';
+import 'package:park_it/admin/screens/MainMenu/DashBoard/helpers/profile_model.dart';
+import 'package:park_it/common/constants/spring_url.dart';
+class ProfilePage extends StatefulWidget {
+  //final String vehicleNum;
+  const ProfilePage({super.key,/*required this.vehicleNum*/});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+
+  late Future<Profile?> profile;
+
+  @override
+  void initState() {
+    super.initState();
+    //profile = fetchProfileByVehicleNum(widget.vehicleNum);
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView( // Make the page scrollable
@@ -295,6 +317,22 @@ class ProfilePage extends StatelessWidget { // Renamed from DashboardPage to Pro
       ),
     );
   }
+
+  Future<Profile?> fetchProfileByVehicleNum(String vehicleNum) async {
+    try {
+      var client = BrowserClient();
+      final response = await client.get(Uri.parse("${SpringUrls.getProfileByVehicleNumURL}?vehicleNumber=$vehicleNum"));
+
+      if (response.statusCode == 200) {
+        return Profile.fromJson(jsonDecode(response.body));
+      } else {
+        throw Exception("Failed to load images");
+      }
+    } catch (error) {
+      print("Error fetching images: $error");
+      return null;
+    }
+  }
 }
 
 class PersonalInfoCard extends StatelessWidget {
@@ -432,6 +470,7 @@ class PersonalInfoCard extends StatelessWidget {
       ),
     );
   }
+
 }
 
 
@@ -579,5 +618,6 @@ class ParkingSpaceCard extends StatelessWidget {
       ),
     );
   }
+
 }
 
