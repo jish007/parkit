@@ -17,6 +17,8 @@ class Profile {
   final double totalAmount;
   final String bookingTime;
   final int profileId;
+  final bool? isBanned;
+  final int? fineAmount;
 
   Profile({
     required this.vehicleNumber,
@@ -36,7 +38,9 @@ class Profile {
     required this.vehicleModel,
     required this.totalAmount,
     required this.bookingTime,
-    required this.profileId
+    required this.profileId,
+    this.isBanned,
+    this.fineAmount
   });
 
   // Factory method to parse JSON
@@ -59,7 +63,9 @@ class Profile {
       vehicleModel: json['vehicleModel'],
       totalAmount: json['totalAmount'],
       bookingTime: json['bookingTime'],
-      profileId: json['profileId']
+      profileId: json['profileId'],
+      fineAmount: json['fineAmount'],
+      isBanned: json['banned'],
     );
   }
 }

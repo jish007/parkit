@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:park_it/admin/screens/MainMenu/Profile/profile_page.dart';
 
 class TableContainer extends StatefulWidget {
   final double width;
@@ -86,6 +87,10 @@ class _TableContainerState extends State<TableContainer> {
                       Expanded(child: Text(item['time'])),
                     ],
                   ),
+                  onTap: (){
+                    Navigator.push(context,MaterialPageRoute(builder: (context) => ProfilePage(vehicleNum: item['numberPlate'].toString())));
+                    //ProfilePage(vehicleNum: item['numberPlate'].toString());
+                  },
                 );
               },
             ),

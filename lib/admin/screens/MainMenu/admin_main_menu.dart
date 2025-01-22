@@ -27,7 +27,7 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
       DashboardPage(adminMail: widget.adminMail), // Pass adminMail here
       ParkingSpacePage(adminMail: widget.adminMail,),
       HistoryPage(adminMail: widget.adminMail),
-      ActionScreen(),
+      ActionScreen(adminMail: widget.adminMail,),
       //ProfilePage(),
     ];
   }

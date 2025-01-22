@@ -1,12 +1,13 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/browser_client.dart';
 import 'package:park_it/admin/screens/MainMenu/DashBoard/helpers/profile_model.dart';
 import 'package:park_it/common/constants/spring_url.dart';
 class ProfilePage extends StatefulWidget {
-  //final String vehicleNum;
-  const ProfilePage({super.key,/*required this.vehicleNum*/});
+  final String vehicleNum;
+  const ProfilePage({super.key,required this.vehicleNum});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -19,301 +20,306 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    //profile = fetchProfileByVehicleNum(widget.vehicleNum);
+    profile = fetchProfileByVehicleNum(widget.vehicleNum);
   }
-
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView( // Make the page scrollable
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Dashboard',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20),
-            // First existing widget (same as before)
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    blurRadius: 6,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  // Client Picture
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(50),
-                    child: Image.asset(
-                      'assets/admin/sample_client.jpg', // Replace with your image path
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  SizedBox(width: 16),
-
-                  // Client Info
-                  Column(
+    return Scaffold(
+      appBar: AppBar(leading: IconButton(icon: const Icon(CupertinoIcons.back),onPressed: (){Navigator.pop(context);}),),
+      body: FutureBuilder<Profile?>(
+        future: profile,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (snapshot.hasData && snapshot.data != null) {
+              final profileData = snapshot.data!;
+              return SingleChildScrollView( // Make the page scrollable
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'John Doe',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      // First existing widget (same as before)
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              blurRadius: 6,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            // Client Picture
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(50),
+                              child: Image.asset(
+                                'assets/admin/sample_client.jpg', // Replace with your image path
+                                width: 80,
+                                height: 80,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            SizedBox(width: 16),
+
+                            // Client Info
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'User Name: ${profileData.userName}',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  'Vehicle No: ${profileData.vehicleNumber}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            Spacer(),
+
+                            // Parking Start Date
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Start Date and Time',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  '${profileData.bookingDate}, ${profileData.bookingTime}',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ],
+                            ),
+
+                            Spacer(),
+
+                            // Parking End Date
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Duration of allocation',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  '${profileData.durationOfAllocation} minutes',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ],
+                            ),
+
+                            Spacer(),
+
+                            // Timer and Payment Info
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Timer (Progress Bar)
+                                Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 120,
+                                      height: 10,
+                                      child: LinearProgressIndicator(
+                                        value: 0.7, // 70% Progress Example
+                                        backgroundColor: Colors.grey[300],
+                                        color: const Color.fromARGB(255, 22, 194, 77),
+                                      ),
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      '70%',
+                                      style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 10),
+
+                                // Payment Info
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.currency_rupee,
+                                      size: 16,
+                                      color: Colors.green,
+                                    ),
+                                    Text(
+                                      'Rs:${profileData.paidAmount}',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Reg No: ABC1234',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey[700],
+                      SizedBox(height: 40),
+                      // New Booking Progress Section
+                      Container(
+                        margin: const EdgeInsets.all(30),
+                        padding: const EdgeInsets.all(25),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              blurRadius: 6,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                // Step 1: New Booking
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'New Booking',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color.fromARGB(255, 31, 123, 197), // Active step in blue
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                // Horizontal Line after New Booking
+                                Container(
+                                  width: 180,
+                                  height: 2,
+                                  color: const Color.fromARGB(255, 36, 138, 222), // Line color for active step
+                                ),
+                                // Step 2: Waiting for Car
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Waiting for Car',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black, // Default color
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                // Horizontal Line after Waiting for Car
+                                Container(
+                                  width: 180,
+                                  height: 2,
+                                  color: Colors.black, // Line color for default steps
+                                ),
+                                // Step 3: Car Parked
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Car Parked',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black, // Default color
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                // Horizontal Line after Car Parked
+                                Container(
+                                  width: 180,
+                                  height: 2,
+                                  color: Colors.black, // Line color for default steps
+                                ),
+                                // Step 4: Exited from Slot
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Exited from Slot',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black, // Default color
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 20),
+                            // Main horizontal line connecting all steps
+                            Container(
+                              height: 2,
+                              color: Colors.white, // Line connecting all steps
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-
-                  Spacer(),
-
-                  // Parking Start Date
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Start Date',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        '2024-12-10',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-
-                  Spacer(),
-
-                  // Parking End Date
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'End Date',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        '2024-12-12',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-
-                  Spacer(),
-
-                  // Timer and Payment Info
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Timer (Progress Bar)
+                      SizedBox(height: 40),
+                      // Row to display both Personal Info and Parking Space cards
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          SizedBox(
-                            width: 120,
-                            height: 10,
-                            child: LinearProgressIndicator(
-                              value: 0.7, // 70% Progress Example
-                              backgroundColor: Colors.grey[300],
-                              color: const Color.fromARGB(255, 22, 194, 77),
+                          Expanded(
+                            child: PersonalInfoCard(
+                              profile : profileData
                             ),
                           ),
-                          SizedBox(width: 8),
-                          Text(
-                            '70%',
-                            style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-
-                      // Payment Info
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.currency_rupee,
-                            size: 16,
-                            color: Colors.green,
-                          ),
-                          Text(
-                            '500',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
+                          SizedBox(width: 10), // Space between the cards
+                          Expanded(
+                            child: ParkingSpaceCard(
+                              profile: profileData
                             ),
                           ),
                         ],
                       ),
                     ],
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 40),
-            // New Booking Progress Section
-            Container(
-              margin: const EdgeInsets.all(30),
-              padding: const EdgeInsets.all(25),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    blurRadius: 6,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Step 1: New Booking
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'New Booking',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: const Color.fromARGB(255, 31, 123, 197), // Active step in blue
-                            ),
-                          ),
-                        ],
-                      ),
-                      // Horizontal Line after New Booking
-                      Container(
-                        width: 180,
-                        height: 2,
-                        color: const Color.fromARGB(255, 36, 138, 222), // Line color for active step
-                      ),
-                      // Step 2: Waiting for Car
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Waiting for Car',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black, // Default color
-                            ),
-                          ),
-                        ],
-                      ),
-                      // Horizontal Line after Waiting for Car
-                      Container(
-                        width: 180,
-                        height: 2,
-                        color: Colors.black, // Line color for default steps
-                      ),
-                      // Step 3: Car Parked
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Car Parked',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black, // Default color
-                            ),
-                          ),
-                        ],
-                      ),
-                      // Horizontal Line after Car Parked
-                      Container(
-                        width: 180,
-                        height: 2,
-                        color: Colors.black, // Line color for default steps
-                      ),
-                      // Step 4: Exited from Slot
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Exited from Slot',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black, // Default color
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                  // Main horizontal line connecting all steps
-                  Container(
-                    height: 2,
-                    color: Colors.white, // Line connecting all steps
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 40),
-            // Row to display both Personal Info and Parking Space cards
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: PersonalInfoCard(
-                    firstName: 'Pranav',
-                    dateOfBirth: '9 Jan 2003',
-                    email: 'Pranav334@gmail.com',
-                    phoneNumber: '93343223664274',
-                    country: 'India',
-                    city: 'Thrissur',
-                    drivingExperience: '4 yr',
                   ),
                 ),
-                SizedBox(width: 10), // Space between the cards
-                Expanded(
-                  child: ParkingSpaceCard(
-                    section: 'C',
-                    row: '31',
-                    space: '#C31',
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+              );
+            }
+            else {
+              return const Center(child: Text('No profile found'));
+            }
+          }
       ),
     );
   }
@@ -324,35 +330,29 @@ class _ProfilePageState extends State<ProfilePage> {
       final response = await client.get(Uri.parse("${SpringUrls.getProfileByVehicleNumURL}?vehicleNumber=$vehicleNum"));
 
       if (response.statusCode == 200) {
-        return Profile.fromJson(jsonDecode(response.body));
+        final List<dynamic> responseData = jsonDecode(response.body);
+        if (responseData.isNotEmpty) {
+          return Profile.fromJson(responseData[0]); // Assuming the first object is the required profile
+        } else {
+          throw Exception("No profile data found");
+        }
       } else {
-        throw Exception("Failed to load images");
+        throw Exception("Failed to load");
       }
     } catch (error) {
-      print("Error fetching images: $error");
+      print("Error fetching: $error");
       return null;
     }
   }
 }
 
 class PersonalInfoCard extends StatelessWidget {
-  final String firstName;
-  final String dateOfBirth;
-  final String email;
-  final String phoneNumber;
-  final String country;
-  final String city;
-  final String drivingExperience;
+
+  final Profile profile;
 
   const PersonalInfoCard({
     super.key,
-    required this.firstName,
-    required this.dateOfBirth,
-    required this.email,
-    required this.phoneNumber,
-    required this.country,
-    required this.city,
-    required this.drivingExperience,
+    required this.profile,
   });
 
   @override
@@ -392,22 +392,22 @@ class PersonalInfoCard extends StatelessWidget {
           Divider(color: Colors.grey[300], thickness: 1),
           const SizedBox(height: 12),
           _buildRow(
-            _buildShadedBox(Icons.person, 'First Name', firstName),
-            _buildShadedBox(Icons.cake, 'Date of Birth', dateOfBirth),
+            _buildShadedBox(Icons.person, 'First Name', profile.userName),
+            _buildShadedBox(Icons.cake, 'Date of Birth', ''),
           ),
           const SizedBox(height: 12),
           _buildRow(
-            _buildShadedBox(Icons.email, 'Email', email),
-            _buildShadedBox(Icons.phone, 'Phone No.', phoneNumber),
+            _buildShadedBox(Icons.email, 'Email', profile.userEmailId),
+            _buildShadedBox(Icons.phone, 'Phone No.', profile.phoneNum),
           ),
           const SizedBox(height: 12),
           _buildRow(
-            _buildShadedBox(Icons.flag, 'Country', country),
-            _buildShadedBox(Icons.location_city, 'City', city),
+            _buildShadedBox(Icons.flag, 'Country', ''),
+            _buildShadedBox(Icons.location_city, 'City', ''),
           ),
           const SizedBox(height: 12),
           Center(
-            child: _buildShadedBox(Icons.car_repair, 'Driving Experience', drivingExperience),
+            child: _buildShadedBox(Icons.car_repair, 'Driving Experience', ''),
           ),
         ],
       ),
@@ -475,15 +475,11 @@ class PersonalInfoCard extends StatelessWidget {
 
 
 class ParkingSpaceCard extends StatelessWidget {
-  final String section;
-  final String row;
-  final String space;
+  final Profile profile;
 
   const ParkingSpaceCard({
     super.key,
-    required this.section,
-    required this.row,
-    required this.space,
+    required this.profile
   });
 
   @override
@@ -527,12 +523,12 @@ class ParkingSpaceCard extends StatelessWidget {
 
           // Details in Shaded Boxes
           _buildRow(
-            _buildShadedBox('Section', section),
-            _buildShadedBox('Row', row),
+            _buildShadedBox('Slot', profile.allocatedSlotNumber),
+            _buildShadedBox('Vehicle Type', profile.vehicleType),
           ),
           const SizedBox(height: 10),
           Center(
-            child: _buildShadedBox('Space', space),
+            child: _buildShadedBox('Vehicle Model', profile.vehicleModel),
           ),
           const SizedBox(height: 20),
 
@@ -618,6 +614,5 @@ class ParkingSpaceCard extends StatelessWidget {
       ),
     );
   }
-
 }
 
