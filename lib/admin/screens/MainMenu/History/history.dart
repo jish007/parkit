@@ -33,7 +33,7 @@ class _HistoryPageState extends State<HistoryPage> {
       setState(() {
         orders = profiles.map((profile) {
           return {
-            'profileId': profile.profileId.toString(),
+            'mailId': profile.userEmailId.toString(),
             'userName': profile.userName,
             'paidAmount': profile.paidAmount.toString(),
             'allocatedSlotNumber': profile.allocatedSlotNumber,
@@ -53,7 +53,6 @@ class _HistoryPageState extends State<HistoryPage> {
   // Function to handle row tap (can be extended to navigate to another screen or show a dialog)
   void _onRowTap(int index) {
     final order = orders[index];
-    print("Tapped on order with ID: ${order['id']}");
 
     // Example: Show a dialog with order details
     showDialog(
@@ -62,8 +61,8 @@ class _HistoryPageState extends State<HistoryPage> {
         return AlertDialog(
           title: Text('Order Details'),
           content: Text(
-            'Id: ${order['profileId']}\n'
-            'Name: ${order['userName']}\n'
+            'Username: ${order['userName']}\n'
+            'Mail Id: ${order['mailId']}\n'
             'Amount: ${order['paidAmount']}\n'
             'Slot: ${order['allocatedSlotNumber']}\n'
             'Time: ${order['bookingTime']}\n'
@@ -100,7 +99,7 @@ class _HistoryPageState extends State<HistoryPage> {
           return AlertDialog(
             title: Text('Profile of ${order['userName']}'),
             content: Text('Here are the details for ${order['userName']}.\n\n'
-                'Id: ${order['profileId']}\n'
+                'Mail Id: ${order['mailId']}\n'
                 'Amount: ${order['paidAmount']}\n'
                 'Slot: ${order['allocatedSlotNumber']}\n'
                 'Time: ${order['bookingTime']}\n'
@@ -133,8 +132,8 @@ class _HistoryPageState extends State<HistoryPage> {
                   // Table header
                   Row(
                     children: const [
-                      Expanded(child: Text("Id", style: TextStyle(fontWeight: FontWeight.bold))),
-                      Expanded(child: Text("Name", style: TextStyle(fontWeight: FontWeight.bold))),
+                      Expanded(child: Text("User Name", style: TextStyle(fontWeight: FontWeight.bold))),
+                      Expanded(child: Text("Mail Id", style: TextStyle(fontWeight: FontWeight.bold))),
                       Expanded(child: Text("Amount", style: TextStyle(fontWeight: FontWeight.bold))),
                       Expanded(child: Text("Slot", style: TextStyle(fontWeight: FontWeight.bold))),
                       Expanded(child: Text("Time", style: TextStyle(fontWeight: FontWeight.bold))),
@@ -177,13 +176,13 @@ class _HistoryPageState extends State<HistoryPage> {
                                       Expanded(
                                         child: Padding(
                                           padding: const EdgeInsets.all(24.0), // Increased padding for more height
-                                          child: Text(order['profileId'], style: TextStyle(color: Colors.black, fontSize: 18)),
+                                          child: Text(order['userName'], style: TextStyle(color: Colors.black, fontSize: 18)),
                                         ),
                                       ),
                                       Expanded(
                                         child: Padding(
                                           padding: const EdgeInsets.all(24.0),
-                                          child: Text(order['userName'], style: TextStyle(color: Colors.black, fontSize: 18)),
+                                          child: Text(order['mailId'], style: TextStyle(color: Colors.black, fontSize: 18)),
                                         ),
                                       ),
                                       Expanded(

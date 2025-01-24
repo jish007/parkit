@@ -16,7 +16,6 @@ class Profile {
   final String vehicleModel;
   final double totalAmount;
   final String bookingTime;
-  final int profileId;
   final bool? isBanned;
   final int? fineAmount;
 
@@ -38,7 +37,6 @@ class Profile {
     required this.vehicleModel,
     required this.totalAmount,
     required this.bookingTime,
-    required this.profileId,
     this.isBanned,
     this.fineAmount
   });
@@ -63,7 +61,6 @@ class Profile {
       vehicleModel: json['vehicleModel'],
       totalAmount: json['totalAmount'],
       bookingTime: json['bookingTime'],
-      profileId: json['profileId'],
       fineAmount: json['fineAmount'],
       isBanned: json['banned'],
     );

@@ -5,9 +5,7 @@ import 'package:park_it/super_admin/screens/JoinUs/nextcontainer.dart';
 class JoinUsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color.fromARGB(255, 1, 1, 1), // Set the background color to grey
-      body: LayoutBuilder(
+    return LayoutBuilder(
         builder: (context, constraints) {
           bool isSmallScreen = constraints.maxWidth < 343; // Define small screen width
 
@@ -31,8 +29,7 @@ class JoinUsScreen extends StatelessWidget {
             ),
           );
         },
-      ),
-    );
+      );
   }
 }
 

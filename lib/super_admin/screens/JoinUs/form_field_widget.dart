@@ -29,7 +29,8 @@ class _RightContainerState extends State<RightContainer> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _paymentController = TextEditingController();
   final TextEditingController _propertyNameController = TextEditingController();
-  final TextEditingController _propertyLocationController = TextEditingController();
+  final TextEditingController _propertyLocationController =
+      TextEditingController();
   final TextEditingController imageController = TextEditingController();
 
   final String urlRoles = "http://localhost:9000/allRoles";
@@ -122,15 +123,14 @@ class _RightContainerState extends State<RightContainer> {
                 SizedBox(height: 24.0),
                 // Name and Phone Fields
                 _buildLabeledTextFieldsRowWithDropdown(
-                  'Property Owner Name',
-                  'Enter your name',
-                  'Roles',
-                  roles,
-                  // Roles options
-                  _adminNameController,
-                  // Pass the list of selected roles
-                  isSmallScreen
-                ),
+                    'Property Owner Name',
+                    'Enter your name',
+                    'Roles',
+                    roles,
+                    // Roles options
+                    _adminNameController,
+                    // Pass the list of selected roles
+                    isSmallScreen),
                 // Country and State Dropdowns
                 _buildDropdownTextFieldsRow(
                   'Country',
@@ -153,16 +153,15 @@ class _RightContainerState extends State<RightContainer> {
                 ),
                 // Admin Name and Roles (Dropdown for Roles)
                 _buildLabeledTextFieldsRow(
-                  'Admin Name',
-                  'Enter your admin name',
-                  'Admin Phone Number',
-                  'Enter phone number of admin',
-                  JoinUsSVG.person,
-                  JoinUsSVG.phone,
-                  _nameController,
-                  _phoneController,
-                  isSmallScreen
-                ),
+                    'Admin Name',
+                    'Enter your admin name',
+                    'Admin Phone Number',
+                    'Enter phone number of admin',
+                    JoinUsSVG.person,
+                    JoinUsSVG.phone,
+                    _nameController,
+                    _phoneController,
+                    isSmallScreen),
                 // Email and Password Fields
                 _buildLabeledTextFieldsRow(
                   'Email',
@@ -188,7 +187,7 @@ class _RightContainerState extends State<RightContainer> {
                   isSmallScreen,
                 ),
                 _buildToggleAndImageUpload(
-                 'Property Type',
+                  'Property Type',
                   'Choose Property Type',
                   JoinUsSVG.property,
                   'Image Upload',
@@ -214,8 +213,8 @@ class _RightContainerState extends State<RightContainer> {
                     builder: (context) {
                       return ElevatedButton(
                         onPressed: () {
-                          _uploadImageToServer();
-                          submitData();
+                          //_uploadImageToServer();
+                          // submitData();
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
@@ -503,15 +502,15 @@ class _RightContainerState extends State<RightContainer> {
     if (isSmallScreen) {
       return Column(
         children: [
-          _buildLabeledToggle(leftLabel, leftHint,
-              leftIcon, isToggled, (value) {
-                setState(() {
-                  isToggled = value;
-                });
-              }),
+          _buildLabeledToggle(leftLabel, leftHint, leftIcon, isToggled,
+              (value) {
+            setState(() {
+              isToggled = value;
+            });
+          }),
           SizedBox(height: 12.0),
-          _buildLabeledTextFieldWithSeparateButtons(
-              'Image Upload', '', rightIconPath, rightButtonLabel, rightController),
+          _buildLabeledTextFieldWithSeparateButtons('Image Upload', '',
+              rightIconPath, rightButtonLabel, rightController),
         ],
       );
     } else {
@@ -519,17 +518,16 @@ class _RightContainerState extends State<RightContainer> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: _buildLabeledToggle(leftLabel, leftHint,
-                leftIcon, isToggled, (value) {
-                  setState(() {
-                    isToggled = value;
-                  });
-                })
-          ),
+              child: _buildLabeledToggle(
+                  leftLabel, leftHint, leftIcon, isToggled, (value) {
+            setState(() {
+              isToggled = value;
+            });
+          })),
           SizedBox(width: 12.0),
           Expanded(
-            child: _buildLabeledTextFieldWithSeparateButtons(
-                'Image Upload', '', rightIconPath, rightButtonLabel, rightController),
+            child: _buildLabeledTextFieldWithSeparateButtons('Image Upload', '',
+                rightIconPath, rightButtonLabel, rightController),
           ),
         ],
       );
@@ -553,7 +551,7 @@ class _RightContainerState extends State<RightContainer> {
               leftIconPath, leftButtonLabel, leftController),
           SizedBox(height: 12.0),
           _buildLabeledTextFieldWithSeparateButtons(
-                  'Upload', '', rightIconPath, rightButtonLabel, null),
+              'Upload', '', rightIconPath, rightButtonLabel, null),
         ],
       );
     } else {
@@ -567,7 +565,7 @@ class _RightContainerState extends State<RightContainer> {
           SizedBox(width: 12.0),
           Expanded(
             child: _buildLabeledTextFieldWithSeparateButtons(
-                    'Upload', '', rightIconPath, rightButtonLabel, null),
+                'Upload', '', rightIconPath, rightButtonLabel, null),
           ),
         ],
       );
@@ -614,11 +612,15 @@ class _RightContainerState extends State<RightContainer> {
                     if (buttonLabel == 'Location') {
                       // Handle location logic
                       LocationPopup.show(context,
-                          onLocationSelected: (LatLng selectedLocation) {
-                        controller?.text =
-                            'Lat: ${selectedLocation.latitude}, Lng: ${selectedLocation.longitude}';
-                        latitude = selectedLocation.latitude.toString();
-                        longitude = selectedLocation.longitude.toString();
+                          onLocationSelected: (LatLng? location) {
+                        if (location != null) {
+                          controller?.text = 'Lat: ${location.latitude}, Lng: ${location.longitude}';
+                          latitude = location.latitude.toString();
+                          longitude = location.longitude.toString();
+                          // Perform additional actions with the location
+                        } else {
+                          print('Location selection canceled');
+                        }
                       });
                     } else if (buttonLabel == 'Upload') {
                       // Handle upload logic
@@ -813,18 +815,21 @@ class _RightContainerState extends State<RightContainer> {
   List<Map<String, dynamic>> parseExcelToJson(Uint8List fileBytes) {
     var excel = Excel.decodeBytes(fileBytes);
 
-    String sheetName = excel.tables.keys.first; // Assuming you are reading the first sheet
+    String sheetName =
+        excel.tables.keys.first; // Assuming you are reading the first sheet
     var sheet = excel.tables[sheetName];
 
     if (sheet == null || sheet.maxCols < 3 || sheet.maxRows < 2) {
-      throw Exception("Invalid Excel structure. Ensure columns: Floor, Slot Number, Vehicle Type exist.");
+      throw Exception(
+          "Invalid Excel structure. Ensure columns: Floor, Slot Number, Vehicle Type exist.");
     }
 
     List<Map<String, dynamic>> parsedData = [];
 
     // Loop through the sheet by floor
     for (int col = 0; col < sheet.maxCols; col += 2) {
-      String? floorName = _getCellValue(sheet.rows[0][col]); // Floor name from first row
+      String? floorName =
+          _getCellValue(sheet.rows[0][col]); // Floor name from first row
       if (floorName == null || floorName.isEmpty) continue;
 
       List<String> slotNumbers = [];
@@ -986,7 +991,8 @@ class _RightContainerState extends State<RightContainer> {
   }
 
   Future<void> _pickAndUploadImage() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile =
+        await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       // Read file bytes
       final Uint8List fileBytes = await pickedFile.readAsBytes();
@@ -996,7 +1002,6 @@ class _RightContainerState extends State<RightContainer> {
 
       // Convert to Base64
       base64Image = base64Encode(compressedBytes);
-
     }
   }
 
@@ -1005,7 +1010,8 @@ class _RightContainerState extends State<RightContainer> {
     img.Image? originalImage = img.decodeImage(imageBytes);
     if (originalImage != null) {
       // Resize and compress image
-      img.Image resizedImage = img.copyResize(originalImage, width: 800, height: 800);
+      img.Image resizedImage =
+          img.copyResize(originalImage, width: 800, height: 800);
       return Uint8List.fromList(img.encodeJpg(resizedImage, quality: 50));
     }
     return imageBytes; // Return original if decoding fails
@@ -1044,6 +1050,4 @@ class _RightContainerState extends State<RightContainer> {
       client.close(); // Ensure the client is closed after the request
     }
   }
-
-
 }

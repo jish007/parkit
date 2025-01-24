@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:park_it/super_admin/screens/JoinUs/payment_fee_screen.dart';
+import 'payment_fee_screen.dart'; // Import the next screen here
 
 class PaymentPopup extends StatefulWidget {
   @override
@@ -257,7 +257,8 @@ class _PaymentPopupState extends State<PaymentPopup> {
                       },
                       child: Text('Pay \$180'),
                       style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.black, backgroundColor: Color.fromARGB(255, 209, 233, 56), // Button text color black
+                        backgroundColor: Color.fromARGB(255, 209, 233, 56), // Button background color green
+                        foregroundColor: Colors.black, // Button text color black
                         padding: EdgeInsets.symmetric(vertical: 15), // Button height
                       ),
                     ),

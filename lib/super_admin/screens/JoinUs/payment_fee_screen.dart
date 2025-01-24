@@ -62,7 +62,8 @@ class PaymentFeeScreen extends StatelessWidget {
               },
               child: Text('Confirm Payment'),
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black, backgroundColor: Color.fromARGB(255, 209, 233, 56),
+                backgroundColor: Color.fromARGB(255, 209, 233, 56),
+                foregroundColor: Colors.black,
                 padding: EdgeInsets.symmetric(vertical: 15),
               ),
             ),
@@ -142,7 +143,8 @@ class SuccessScreen extends StatelessWidget {
               },
               child: Text('Back to Home'),
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black, backgroundColor: Color.fromARGB(255, 209, 233, 56),
+                backgroundColor: Color.fromARGB(255, 209, 233, 56),
+                foregroundColor: Colors.black,
                 padding: EdgeInsets.symmetric(vertical: 15),
               ),
             ),
