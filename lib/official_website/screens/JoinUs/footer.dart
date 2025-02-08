@@ -1,7 +1,6 @@
-// lib/footer.dart
 import 'package:flutter/material.dart';
-import 'package:park_it/super_admin/constants/image_strings.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:park_it/official_website/constants/image_strings.dart';
 
 class Footer extends StatelessWidget {
   @override

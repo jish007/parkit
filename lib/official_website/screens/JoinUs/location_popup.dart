@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:park_it/super_admin/screens/JoinUs/tom_tom_map.dart';
+import 'package:park_it/official_website/screens/JoinUs/tom_tom_map.dart';
 
 
 // Class to manage the location popup with the map

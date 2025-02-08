@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/browser_client.dart';
 import 'package:park_it/admin/screens/Auth/loading_screen.dart';
 import 'package:park_it/admin/screens/MainMenu/admin_main_menu.dart';
+import 'package:park_it/super_admin/screens/super_admin_home.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -56,14 +57,22 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       });
     } else {
       await checkLogin();
-      if (status == "User Is Valid") {
+      if (status == "Admin Is Valid") {
         print("hai");
         _animationController.forward();
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) =>  LoadingScreen(destination : AdminMainMenu(adminMail: email))),
         );
-      } else {
+      }
+      else if (status == "Super Admin Is Valid") {
+        _animationController.forward();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) =>  LoadingScreen(destination : SuperAdminHome())),
+        );
+      }
+      else {
         // Login failed
         _animationController.forward();
         _showErrorPopup('Invalid email or password.');

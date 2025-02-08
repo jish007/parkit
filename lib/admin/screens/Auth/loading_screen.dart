@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:park_it/admin/screens/Auth/admin_login_screen.dart';
 
 class LoadingScreen extends StatefulWidget {
   final Widget destination;

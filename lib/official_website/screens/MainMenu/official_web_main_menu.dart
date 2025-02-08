@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:park_it/super_admin/screens/JoinUs/wrapping_all_widget.dart';
-import 'package:park_it/super_admin/screens/home/super_admin_home.dart';
-import 'package:park_it/super_admin/screens/service/service_screen.dart';
+import 'package:park_it/official_website/screens/JoinUs/wrapping_all_widget.dart';
+import 'package:park_it/official_website/screens/home/official_website_home.dart';
+import 'package:park_it/official_website/screens/service/service_screen.dart';
 
 
-class SuperAdmin extends StatefulWidget {
+class OfficialWeb extends StatefulWidget {
   @override
-  SuperAdminState createState() => SuperAdminState();
+  OfficialWebState createState() => OfficialWebState();
 }
 
-class SuperAdminState extends State<SuperAdmin> {
+class OfficialWebState extends State<OfficialWeb> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [

@@ -1,8 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:park_it/super_admin/constants/image_strings.dart';
-import 'package:park_it/super_admin/screens/JoinUs/backend.dart';
+import 'package:park_it/official_website/constants/image_strings.dart';
+import 'package:park_it/official_website/screens/JoinUs/backend.dart';
 import 'footer.dart'; // Import the footer.dart file
 
 class NextContainer extends StatelessWidget {

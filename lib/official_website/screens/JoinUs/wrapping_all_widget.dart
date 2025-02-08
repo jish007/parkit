@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:park_it/super_admin/screens/JoinUs/form_field_widget.dart';
-import 'package:park_it/super_admin/screens/JoinUs/nextcontainer.dart';
+import 'package:park_it/official_website/screens/JoinUs/form_field_widget.dart';
+import 'package:park_it/official_website/screens/JoinUs/nextcontainer.dart';
+
 
 class JoinUsScreen extends StatelessWidget {
   @override

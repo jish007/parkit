@@ -9,11 +9,11 @@ import 'package:http/browser_client.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
-import 'package:park_it/super_admin/CustomWidgets/roles_dropdown.dart';
-import 'package:park_it/super_admin/constants/image_strings.dart';
-import 'package:park_it/super_admin/screens/JoinUs/location_popup.dart';
-import 'package:park_it/super_admin/screens/JoinUs/popup.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:park_it/official_website/CustomWidgets/roles_dropdown.dart';
+import 'package:park_it/official_website/constants/image_strings.dart';
+import 'package:park_it/official_website/screens/JoinUs/location_popup.dart';
+import 'package:park_it/official_website/screens/JoinUs/popup.dart';
 
 class RightContainer extends StatefulWidget {
   @override

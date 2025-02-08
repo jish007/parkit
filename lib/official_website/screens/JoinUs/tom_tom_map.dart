@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart'; // Your geocoding service
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:park_it/super_admin/screens/JoinUs/tom_tom_geo_coding_services.dart';
-import 'package:park_it/super_admin/screens/JoinUs/tom_tom_routing_services.dart'; // For SVG support
+import 'package:park_it/official_website/screens/JoinUs/tom_tom_geo_coding_services.dart';
+import 'package:park_it/official_website/screens/JoinUs/tom_tom_routing_services.dart';
 
 class TomTomMapWithRoute extends StatefulWidget {
   final Function(LatLng?) onLocationSelected;
