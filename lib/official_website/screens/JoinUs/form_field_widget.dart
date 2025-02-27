@@ -29,8 +29,8 @@ class _RightContainerState extends State<RightContainer> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _paymentController = TextEditingController();
   final TextEditingController _propertyNameController = TextEditingController();
-  final TextEditingController _propertyLocationController =
-      TextEditingController();
+  final TextEditingController _propertyLocationController = TextEditingController();
+  final TextEditingController _propertyDescriptionController = TextEditingController();
   final TextEditingController imageController = TextEditingController();
 
   final String urlRoles = "http://localhost:9000/allRoles";
@@ -55,7 +55,9 @@ class _RightContainerState extends State<RightContainer> {
   String? longitude;
   late String location;
 
-  late String base64Image;
+  late String layoutImage;
+
+  late String propertyImage;
 
   String propertyType = "Ground";
   bool isGround = true;
@@ -204,6 +206,16 @@ class _RightContainerState extends State<RightContainer> {
                   JoinUsSVG.location,
                   JoinUsSVG.attachment,
                   _propertyLocationController,
+                  isSmallScreen,
+                ),
+                _buildLabeledTextFieldsWithAndWithoutButton(
+                  'Property Description',
+                  'Enter property description',
+                  'Image of the Property',
+                  'Image Upload',
+                  JoinUsSVG.location,
+                  JoinUsSVG.attachment,
+                  _propertyDescriptionController,
                   isSmallScreen,
                 ),
                 SizedBox(height: 20.0),
@@ -509,7 +521,7 @@ class _RightContainerState extends State<RightContainer> {
             });
           }),
           SizedBox(height: 12.0),
-          _buildLabeledTextFieldWithSeparateButtons('Image Upload', '',
+          _buildLabeledTextFieldWithSeparateButtons('Property Layout Upload', '',
               rightIconPath, rightButtonLabel, rightController),
         ],
       );
@@ -526,7 +538,7 @@ class _RightContainerState extends State<RightContainer> {
           })),
           SizedBox(width: 12.0),
           Expanded(
-            child: _buildLabeledTextFieldWithSeparateButtons('Image Upload', '',
+            child: _buildLabeledTextFieldWithSeparateButtons('Property Layout Upload', '',
                 rightIconPath, rightButtonLabel, rightController),
           ),
         ],
@@ -551,7 +563,7 @@ class _RightContainerState extends State<RightContainer> {
               leftIconPath, leftButtonLabel, leftController),
           SizedBox(height: 12.0),
           _buildLabeledTextFieldWithSeparateButtons(
-              'Upload', '', rightIconPath, rightButtonLabel, null),
+              'File Upload', '', rightIconPath, rightButtonLabel, null),
         ],
       );
     } else {
@@ -565,7 +577,45 @@ class _RightContainerState extends State<RightContainer> {
           SizedBox(width: 12.0),
           Expanded(
             child: _buildLabeledTextFieldWithSeparateButtons(
-                'Upload', '', rightIconPath, rightButtonLabel, null),
+                'File Upload', '', rightIconPath, rightButtonLabel, null),
+          ),
+        ],
+      );
+    }
+  }
+
+  Widget _buildLabeledTextFieldsWithAndWithoutButton(
+      String leftLabel,
+      String leftHint,
+      String leftButtonLabel,
+      String rightButtonLabel,
+      String leftIconPath,
+      String rightIconPath,
+      TextEditingController leftController,
+      bool isSmallScreen,
+      ) {
+    if (isSmallScreen) {
+      return Column(
+        children: [
+          _buildLabeledTextField(
+              leftLabel, leftHint, leftIconPath, leftController),
+          SizedBox(height: 12.0),
+          _buildLabeledTextFieldWithSeparateButtons(
+              'Property Image Upload', 'Upload Property Image', rightIconPath, rightButtonLabel, null),
+        ],
+      );
+    } else {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: _buildLabeledTextField(
+                leftLabel, leftHint, leftIconPath, leftController),
+          ),
+          SizedBox(width: 12.0),
+          Expanded(
+            child: _buildLabeledTextFieldWithSeparateButtons(
+                'Property Image Upload', 'Upload Property Image', rightIconPath, rightButtonLabel, null),
           ),
         ],
       );
@@ -626,7 +676,7 @@ class _RightContainerState extends State<RightContainer> {
                       // Handle upload logic
                       handleFileUpload();
                     } else if (buttonLabel == 'Image Upload') {
-                      _pickAndUploadImage();
+                      _pickAndUploadImage(label);
                     }
                   },
                   style: TextButton.styleFrom(
@@ -990,7 +1040,7 @@ class _RightContainerState extends State<RightContainer> {
     }
   }
 
-  Future<void> _pickAndUploadImage() async {
+  Future<void> _pickAndUploadImage(String type) async {
     final XFile? pickedFile =
         await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -1001,7 +1051,16 @@ class _RightContainerState extends State<RightContainer> {
       Uint8List compressedBytes = _compressImage(fileBytes);
 
       // Convert to Base64
-      base64Image = base64Encode(compressedBytes);
+      String base64Image = base64Encode(compressedBytes);
+
+      if(type == "Property Layout Upload"){
+        layoutImage = base64Image;
+        print("in Layout");
+      }
+      else if(type == "Property Image Upload"){
+        propertyImage = base64Image;
+        print("in property");
+      }
     }
   }
 
@@ -1025,7 +1084,7 @@ class _RightContainerState extends State<RightContainer> {
         Uri.parse(urlImageSubmit),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'image': base64Image,
+          'image': layoutImage,
           'propertyLocation': location,
           'propertyName': _propertyNameController.text.toString(),
         }),

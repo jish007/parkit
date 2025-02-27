@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/browser_client.dart';
-import 'package:park_it/super_admin/screens/JoinUs/form_field_widget.dart';
+import 'package:park_it/official_website/screens/JoinUs/form_field_widget.dart';
 
 class JoinUsScreen extends StatefulWidget {
   const JoinUsScreen({super.key});
