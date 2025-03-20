@@ -62,7 +62,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(50),
                               child: Image.asset(
-                                'assets/admin/sample_client.jpg', // Replace with your image path
+                                'assets/admin/profile.png',
                                 width: 80,
                                 height: 80,
                                 fit: BoxFit.cover,
@@ -84,7 +84,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 SizedBox(height: 4),
                                 Text(
-                                  'Vehicle No: ${profileData.vehicleNumber}',
+                                  'Vehicle No: ${profileData.vehicleNumber.toUpperCase()}',
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: Colors.grey[700],
@@ -109,7 +109,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 SizedBox(height: 4),
                                 Text(
-                                  '${profileData.bookingDate!}, ${profileData.bookingTime!}',
+                                  '${profileData.bookingDate!}',
                                   style: TextStyle(fontSize: 16),
                                 ),
                               ],
@@ -393,21 +393,17 @@ class PersonalInfoCard extends StatelessWidget {
           const SizedBox(height: 12),
           _buildRow(
             _buildShadedBox(Icons.person, 'First Name', profile.userName  ?? 'N/A'),
-            _buildShadedBox(Icons.cake, 'Date of Birth', ''),
-          ),
-          const SizedBox(height: 12),
-          _buildRow(
             _buildShadedBox(Icons.email, 'Email', profile.userEmailId  ?? 'N/A'),
-            _buildShadedBox(Icons.phone, 'Phone No.', profile.phoneNum  ?? 'N/A'),
           ),
           const SizedBox(height: 12),
           _buildRow(
-            _buildShadedBox(Icons.flag, 'Country', ''),
-            _buildShadedBox(Icons.location_city, 'City', ''),
+            _buildShadedBox(Icons.phone, 'Phone No.', profile.phoneNum  ?? 'N/A'),
+              _buildShadedBox(Icons.format_list_numbered, 'Number of vehicles.', profile.noOfVehicles.toString()  ?? 'N/A')
           ),
           const SizedBox(height: 12),
-          Center(
-            child: _buildShadedBox(Icons.car_repair, 'Driving Experience', ''),
+          _buildRow(
+            _buildShadedBox(Icons.currency_rupee, 'Total Paid Amount', profile.totalAmount.toString()),
+            _buildShadedBox(Icons.currency_rupee, 'Fine Amount', profile.fineAmount.toString()),
           ),
         ],
       ),

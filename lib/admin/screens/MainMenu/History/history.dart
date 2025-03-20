@@ -37,7 +37,7 @@ class _HistoryPageState extends State<HistoryPage> {
             'userName': profile.userName,
             'paidAmount': profile.paidAmount.toString(),
             'allocatedSlotNumber': profile.allocatedSlotNumber,
-            'bookingTime': profile.bookingTime,
+            'bookingTime': profile.bookingDate,
             'durationOfAllocation': profile.durationOfAllocation.toString(),
           };
         }).toList();
@@ -65,7 +65,7 @@ class _HistoryPageState extends State<HistoryPage> {
             'Mail Id: ${order['mailId']}\n'
             'Amount: ${order['paidAmount']}\n'
             'Slot: ${order['allocatedSlotNumber']}\n'
-            'Time: ${order['bookingTime']}\n'
+            'Time: ${order['bookingDate']}\n'
             'Duration: ${order['durationOfAllocation']}',
           ),
           actions: [
@@ -102,7 +102,7 @@ class _HistoryPageState extends State<HistoryPage> {
                 'Mail Id: ${order['mailId']}\n'
                 'Amount: ${order['paidAmount']}\n'
                 'Slot: ${order['allocatedSlotNumber']}\n'
-                'Time: ${order['bookingTime']}\n'
+                'Time: ${order['bookingDate']}\n'
                 'Duration: ${order['durationOfAllocation']}'),
             actions: [
               TextButton(
@@ -200,7 +200,7 @@ class _HistoryPageState extends State<HistoryPage> {
                                       Expanded(
                                         child: Padding(
                                           padding: const EdgeInsets.all(24.0),
-                                          child: Text(order['bookingTime'], style: TextStyle(color: Colors.black, fontSize: 18)),
+                                          child: Text(order['bookingDate'], style: TextStyle(color: Colors.black, fontSize: 18)),
                                         ),
                                       ),
                                       Expanded(
