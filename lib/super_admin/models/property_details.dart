@@ -1,24 +1,32 @@
 class PropertyDetails {
-  final int? slotId;
-  final String? slotNumber;
-  final String? floor;
-  final String? vehicleType;
-  final String? propertyName;
-  final String? city;
-  final String? district;
-  final String? state;
-  final String? country;
-  final bool? slotAvailability;
-  final String? googleLocation;
-  final String? adminName;
-  final String? adminPhone;
-  final String? propertyType;
-  final String? adminMailId;
-  final String? vehicleNum;
-  final String? roleName;
-  final String? responsibilities;
-  final int? duration;
-  final int? charge;
+  String? slotId;
+  String? slotNumber;
+  String? floor;
+  String? vehicleType;
+  String? propertyName;
+  String? city;
+  String? district;
+  String? state;
+  String? country;
+  String? googleLocation;
+   String? adminName;
+   String? adminPhone;
+   String? propertyType;
+   String? adminMailId;
+   String? roleName;
+   String? responsibilities;
+   int? duration;
+   int? charge;
+   int? x;
+   int? y;
+   int? height;
+   int? width;
+   String? ranges;
+   String? sheetId;
+   String? propertyDesc;
+   String? propertyOwner;
+   String? ownerPhoneNum;
+
 
   PropertyDetails({
     this.slotId,
@@ -30,22 +38,29 @@ class PropertyDetails {
     this.district,
     this.state,
     this.country,
-    this.slotAvailability,
     this.googleLocation,
     this.adminName,
     this.adminPhone,
     this.propertyType,
     this.adminMailId,
-    this.vehicleNum,
     this.roleName,
     this.responsibilities,
     this.duration,
     this.charge,
+    this.ownerPhoneNum,
+    this.propertyOwner,
+    this.propertyDesc,
+    this.sheetId,
+    this.ranges,
+    this.height,
+    this.width,
+    this.x,
+    this.y,
   });
 
   factory PropertyDetails.fromJson(Map<String, dynamic> json) {
     return PropertyDetails(
-      slotId: json["slotId"] as int?,
+      slotId: json["slotId"].toString() as String?,
       slotNumber: json["slotNumber"] as String?,
       floor: json["floor"] as String?,
       vehicleType: json["vehicleType"] as String?,
@@ -54,17 +69,24 @@ class PropertyDetails {
       district: json["district"] as String?,
       state: json["state"] as String?,
       country: json["country"] as String?,
-      slotAvailability: json["slotAvailability"] as bool?,
       googleLocation: json["googleLocation"] as String?,
       adminName: json["adminName"] as String?,
       adminPhone: json["adminPhone"] as String?,
       propertyType: json["propertyType"] as String?,
       adminMailId: json["adminMailId"] as String?,
-      vehicleNum: json["vehicleNum"] as String?,
       roleName: json["roleName"] as String?,
       responsibilities: json["responsibilities"] as String?,
       duration: json["duration"] as int?,
       charge: json["charge"] as int?,
+      ownerPhoneNum: json["ownerPhoneNum"] as String?,
+      propertyOwner: json["propertyOwner"] as String?,
+      propertyDesc: json["propertyDesc"] as String?,
+      sheetId: json["sheetId"] as String?,
+      ranges: json["ranges"] as String?,
+      width: json["width"] as int?,
+      height: json["height"] as int?,
+      y: json["y"] as int?,
+      x: json["x"] as int?,
     );
   }
 }

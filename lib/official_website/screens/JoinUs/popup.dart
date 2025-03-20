@@ -166,7 +166,7 @@ class _PaymentPopupState extends State<PaymentPopup> {
                             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
                           ),
                           SizedBox(height: 10),
-                          Text('Charge: \$180', style: TextStyle(color: Colors.white)),
+                          Text('Charge: Rs:700', style: TextStyle(color: Colors.white)),
                           SizedBox(height: 10),
                           if (_selectedPaymentMethod == 'Card') ...[
                             // New styled card UI
@@ -255,7 +255,7 @@ class _PaymentPopupState extends State<PaymentPopup> {
                           );
                         }
                       },
-                      child: Text('Pay \$180'),
+                      child: Text('Pay Rs:700'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color.fromARGB(255, 209, 233, 56), // Button background color green
                         foregroundColor: Colors.black, // Button text color black

@@ -18,11 +18,87 @@ class _SuperAdminHomeState extends State<SuperAdminHome> {
   int sortedColumnIndex = 0;
   String verifyStatus = "";
 
+  Map<String, Map<String, dynamic>> editingCells={};
+
   @override
   void initState() {
     super.initState();
     fetchParkingData();
   }
+
+  // Add to the _SuperAdminHomeState class
+  Widget _buildEditableCell(PropertyDetails parking, String field, dynamic value) {
+    bool isEditing = editingCells[parking.slotId.toString()]?[field] == true;
+
+    // Check if this is an editable field
+    bool isEditableField = ['x', 'y', 'ranges', 'height', 'width', 'sheetId'].contains(field);
+
+    if (!isEditableField) {
+      return Text(formatData(value));
+    }
+
+    if (isEditing) {
+      // Show text field for editing
+      return TextField(
+        autofocus: true,
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(horizontal: 8),
+        ),
+        controller: TextEditingController(text: value?.toString() ?? ''),
+        onSubmitted: (newValue) {
+          setState(() {
+            // Update the value in the local data
+            switch(field) {
+              case 'x': parking.x = int.tryParse(newValue); break;
+              case 'y': parking.y = int.tryParse(newValue); break;
+              case 'ranges': parking.ranges = newValue.toString(); break;
+              case 'height': parking.height = int.tryParse(newValue); break;
+              case 'width': parking.width = int.tryParse(newValue); break;
+              case 'sheetId': parking.sheetId = newValue; break;
+            }
+
+            // Exit edit mode
+            if (editingCells.containsKey(parking.slotId.toString())) {
+              editingCells[parking.slotId.toString()]?.remove(field);
+              if (editingCells[parking.slotId.toString()]?.isEmpty ?? true) {
+                editingCells.remove(parking.slotId.toString());
+              }
+            }
+          });
+        },
+      );
+    } else {
+      // Show text that can be clicked to edit
+      return GestureDetector(
+        onTap: () {
+          setState(() {
+            // Enter edit mode
+            if (!editingCells.containsKey(parking.slotId.toString())) {
+              editingCells[parking.slotId.toString()] = {};
+            }
+            editingCells[parking.slotId.toString()]?[field] = true;
+          });
+        },
+        child: Container(
+          padding: EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.transparent),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            formatData(value),
+            style: TextStyle(
+              decoration: TextDecoration.underline,
+              color: Colors.blue,
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+
 
   Future<void> fetchParkingData() async {
     final response = await http.get(Uri.parse(
@@ -82,6 +158,28 @@ class _SuperAdminHomeState extends State<SuperAdminHome> {
         return item.charge ?? 0;
       case 13:
         return item.adminMailId ?? "";
+      case 14:
+        return item.x ?? 0;
+      case 15:
+        return item.y ?? 0;
+      case 16:
+        return item.height ?? 0;
+      case 17:
+        return item.width ?? 0;
+      case 18:
+        return item.ranges ?? "";
+      case 19:
+        return item.sheetId ?? "";
+      case 20:
+        return item.propertyDesc ?? "";
+      case 21:
+        return item.propertyOwner ?? "";
+      case 22:
+        return item.ownerPhoneNum ?? "";
+      case 23:
+        return item.googleLocation ?? "";
+      case 24:
+        return item.propertyType ?? "";
       default:
         return "";
     }
@@ -103,7 +201,7 @@ class _SuperAdminHomeState extends State<SuperAdminHome> {
       builder: (BuildContext context) {
         return AlertDialog(
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Column(
             children: [
               Icon(Icons.check_circle, size: 50, color: Colors.green),
@@ -213,7 +311,7 @@ class _SuperAdminHomeState extends State<SuperAdminHome> {
                             ),
                           );
                         } else {
-                          final imageBase64 = snapshot.data![0]['image'];
+                          final imageBase64 = snapshot.data![0]['image2'];
                           final imageBytes = Base64Decoder().convert(imageBase64);
                           return GestureDetector(
                             onTap: () {
@@ -287,6 +385,38 @@ class _SuperAdminHomeState extends State<SuperAdminHome> {
     }
   }
 
+  Future<void> updateSlotData(PropertyDetails parking) async {
+    try {
+      final response = await http.put(
+        Uri.parse(SpringUrls.updatePropertyDetails),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'slotId': parking.slotId,
+          'x': parking.x,
+          'y': parking.y,
+          'height': parking.height,
+          'width': parking.width,
+          'ranges': parking.ranges,
+          'sheetId': parking.sheetId,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Slot data updated successfully')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update slot data')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
+  }
+
 
   Future<void> verifyPropertyDetails(String adminMail) async {
     try {
@@ -317,167 +447,210 @@ class _SuperAdminHomeState extends State<SuperAdminHome> {
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : Padding(
-              padding: EdgeInsets.all(10),
-              child: AnimatedContainer(
-                duration: Duration(milliseconds: 500),
-                curve: Curves.easeInOut,
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  elevation: 8,
-                  shadowColor: Colors.blueAccent,
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(15),
-                        decoration: BoxDecoration(
-                          color: Colors.blueAccent,
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(15)),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "Parking Property Details",
-                            style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: DataTable(
-                              sortColumnIndex: sortedColumnIndex,
-                              sortAscending: isAscending,
-                              headingRowColor: WidgetStateColor.resolveWith(
-                                  (states) => Colors.blue.shade400),
-                              dataRowColor: WidgetStateColor.resolveWith(
-                                  (states) =>
-                                      states.contains(WidgetState.selected)
-                                          ? Colors.blue.shade100
-                                          : Colors.white),
-                              headingTextStyle: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
-                              columns: [
-                                _buildSortableColumn('Slot ID', 0),
-                                _buildSortableColumn('Slot Number', 1),
-                                _buildSortableColumn('Floor', 2),
-                                _buildSortableColumn('Vehicle Type', 3),
-                                _buildSortableColumn('Property Name', 4),
-                                _buildSortableColumn('City', 5),
-                                _buildSortableColumn('State', 6),
-                                _buildSortableColumn('Country', 7),
-                                _buildSortableColumn('Admin Name', 8),
-                                _buildSortableColumn('Role', 9),
-                                _buildSortableColumn('Responsibilities', 10),
-                                _buildSortableColumn('Duration', 11),
-                                _buildSortableColumn('Charge', 12),
-                                _buildSortableColumn('Admin Mail', 13),
-                                DataColumn(label: Text('Actions')),
-                                DataColumn(label: Text('Layout')),
-                                // Adding the Actions column
-                              ],
-                              rows: parkingList.asMap().entries.map((entry) {
-                                int index = entry.key;
-                                PropertyDetails parking = entry.value;
-                                return DataRow(
-                                  color: WidgetStateProperty.resolveWith<
-                                      Color?>((states) => index
-                                          .isEven
-                                      ? Colors.grey[100]
-                                      : Colors.white), // Alternate row colors
-                                  cells: [
-                                    DataCell(Text(formatData(parking.slotId))),
-                                    DataCell(
-                                        Text(formatData(parking.slotNumber))),
-                                    DataCell(Text(formatData(parking.floor))),
-                                    DataCell(
-                                        Text(formatData(parking.vehicleType))),
-                                    DataCell(
-                                        Text(formatData(parking.propertyName))),
-                                    DataCell(Text(formatData(parking.city))),
-                                    DataCell(Text(formatData(parking.state))),
-                                    DataCell(Text(formatData(parking.country))),
-                                    DataCell(
-                                        Text(formatData(parking.adminName))),
-                                    DataCell(
-                                        Text(formatData(parking.roleName))),
-                                    DataCell(Text(
-                                        formatData(parking.responsibilities))),
-                                    DataCell(
-                                        Text(formatData(parking.duration))),
-                                    DataCell(Text(formatData(parking.charge))),
-                                    DataCell(
-                                        Text(formatData(parking.adminMailId))),
-                                    DataCell(
-                                      Row(
-                                        children: [
-                                          ElevatedButton(
-                                            onPressed: () => onVerifyPressed(
-                                                parking.adminMailId!,
-                                                parking.adminName!,
-                                                context),
-                                            child: Text('Verify'),
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.green,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(30),
-                                              ),
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 16, vertical: 8),
-                                            ),
-                                          ),
-                                          SizedBox(width: 10),
-                                          ElevatedButton(
-                                            onPressed: () => onRejectPressed(
-                                                parking.adminName!),
-                                            child: Text('Reject'),
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.red,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(30),
-                                              ),
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 16, vertical: 8),
-                                            ),
-                                          ),
-                                        ],
+        padding: EdgeInsets.all(10),
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+          child: Card(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15)),
+            elevation: 8,
+            shadowColor: Colors.blueAccent,
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    color: Colors.blueAccent,
+                    borderRadius:
+                    BorderRadius.vertical(top: Radius.circular(15)),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "Parking Property Details",
+                      style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: DataTable(
+                        sortColumnIndex: sortedColumnIndex,
+                        sortAscending: isAscending,
+                        headingRowColor: WidgetStateColor.resolveWith(
+                                (states) => Colors.blue.shade400),
+                        dataRowColor: WidgetStateColor.resolveWith(
+                                (states) =>
+                            states.contains(WidgetState.selected)
+                                ? Colors.blue.shade100
+                                : Colors.white),
+                        headingTextStyle: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                        columns: [
+                          _buildSortableColumn('Slot ID', 0),
+                          _buildSortableColumn('Slot Number', 1),
+                          _buildSortableColumn('Floor', 2),
+                          _buildSortableColumn('Vehicle Type', 3),
+                          _buildSortableColumn('Property Name', 4),
+                          _buildSortableColumn('City', 5),
+                          _buildSortableColumn('State', 6),
+                          _buildSortableColumn('Country', 7),
+                          _buildSortableColumn('Admin Name', 8),
+                          _buildSortableColumn('Role', 9),
+                          _buildSortableColumn('Responsibilities', 10),
+                          _buildSortableColumn('Duration', 11),
+                          _buildSortableColumn('Charge', 12),
+                          _buildSortableColumn('Admin Mail', 13),
+                          _buildSortableColumn('Property Description', 20),
+                          _buildSortableColumn('Property Owner', 21),
+                          _buildSortableColumn('Owner Phone Number', 22),
+                          _buildSortableColumn('Location', 23),
+                          _buildSortableColumn('Property Type', 24),
+                          _buildSortableColumn('Layout x', 14),
+                          _buildSortableColumn('Layout y', 15),
+                          _buildSortableColumn('Layout Height', 16),
+                          _buildSortableColumn('Layout Width', 17),
+                          _buildSortableColumn('Layout Ranges', 18),
+                          _buildSortableColumn('Sheet Id', 19),
+                          DataColumn(label: Text('Actions')),
+                          DataColumn(label: Text('Layout')),
+                          // Adding the Actions column
+                        ],
+                        rows: parkingList.asMap().entries.map((entry) {
+                          int index = entry.key;
+                          PropertyDetails parking = entry.value;
+                          return DataRow(
+                            color: WidgetStateProperty.resolveWith<
+                                Color?>((states) => index
+                                .isEven
+                                ? Colors.grey[100]
+                                : Colors.white), // Alternate row colors
+                            cells: [
+                              DataCell(Text(formatData(parking.slotId))),
+                              DataCell(
+                                  Text(formatData(parking.slotNumber))),
+                              DataCell(Text(formatData(parking.floor))),
+                              DataCell(
+                                  Text(formatData(parking.vehicleType))),
+                              DataCell(
+                                  Text(formatData(parking.propertyName))),
+                              DataCell(Text(formatData(parking.city))),
+                              DataCell(Text(formatData(parking.state))),
+                              DataCell(Text(formatData(parking.country))),
+                              DataCell(
+                                  Text(formatData(parking.adminName))),
+                              DataCell(
+                                  Text(formatData(parking.roleName))),
+                              DataCell(Text(
+                                  formatData(parking.responsibilities))),
+                              DataCell(
+                                  Text(formatData(parking.duration))),
+                              DataCell(Text(formatData(parking.charge))),
+                              DataCell(
+                                  Text(formatData(parking.adminMailId))),
+                              DataCell(
+                                  Text(formatData(parking.propertyDesc))),
+                              DataCell(
+                                  Text(formatData(parking.propertyOwner))),
+                              DataCell(
+                                  Text(formatData(parking.ownerPhoneNum))),
+                              DataCell(
+                                  Text(formatData(parking.googleLocation))),
+                              DataCell(
+                                  Text(formatData(parking.propertyType))),
+                              // Replace the DataCells in the DataTable
+                              DataCell(_buildEditableCell(parking, 'x', parking.x)),
+                              DataCell(_buildEditableCell(parking, 'y', parking.y)),
+                              DataCell(_buildEditableCell(parking, 'height', parking.height)),
+                              DataCell(_buildEditableCell(parking, 'width', parking.width)),
+                              DataCell(_buildEditableCell(parking, 'ranges', parking.ranges)),
+                              DataCell(_buildEditableCell(parking, 'sheetId', parking.sheetId)),
+
+                              DataCell(
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () => onVerifyPressed(
+                                          parking.adminMailId!,
+                                          parking.adminName!,
+                                          context),
+                                      child: Text('Verify'),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.green,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(30),
+                                        ),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 16, vertical: 8),
                                       ),
                                     ),
-                                    DataCell(
-                                      ElevatedButton(
-                                        onPressed: () => showPropertyImagePopup(context, parking.propertyName!),
-                                        child: Text('View'),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.yellow,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(30),
-                                          ),
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 16, vertical: 8),
+                                    SizedBox(width: 10),
+                                    ElevatedButton(
+                                      onPressed: () => onRejectPressed(
+                                          parking.adminName!),
+                                      child: Text('Reject'),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(30),
                                         ),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 16, vertical: 8),
+                                      ),
+                                    ),
+                                    SizedBox(width: 10),
+                                    ElevatedButton(
+                                    onPressed: () => updateSlotData(parking),
+                                      child: Text('Edit'),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(30),
+                                        ),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 16, vertical: 8),
                                       ),
                                     ),
                                   ],
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ),
+                                ),
+                              ),
+                              DataCell(
+                                ElevatedButton(
+                                  onPressed: () => showPropertyImagePopup(context, parking.propertyName!),
+                                  child: Text('View'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.yellow,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                      BorderRadius.circular(30),
+                                    ),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 8),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        }).toList(),
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
+          ),
+        ),
+      ),
     );
   }
 

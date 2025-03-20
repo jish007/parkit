@@ -75,7 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'User Name: ${profileData.userName}',
+                                  'User Name: ${profileData.userName!}',
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -109,7 +109,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 SizedBox(height: 4),
                                 Text(
-                                  '${profileData.bookingDate}, ${profileData.bookingTime}',
+                                  '${profileData.bookingDate!}, ${profileData.bookingTime!}',
                                   style: TextStyle(fontSize: 16),
                                 ),
                               ],
@@ -131,7 +131,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 SizedBox(height: 4),
                                 Text(
-                                  '${profileData.durationOfAllocation} minutes',
+                                  '${profileData.durationOfAllocation!} minutes',
                                   style: TextStyle(fontSize: 16),
                                 ),
                               ],
@@ -173,7 +173,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       color: Colors.green,
                                     ),
                                     Text(
-                                      'Rs:${profileData.paidAmount}',
+                                      'Rs:${profileData.paidAmount!}',
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -330,9 +330,9 @@ class _ProfilePageState extends State<ProfilePage> {
       final response = await client.get(Uri.parse("${SpringUrls.getProfileByVehicleNumURL}?vehicleNumber=$vehicleNum"));
 
       if (response.statusCode == 200) {
-        final List<dynamic> responseData = jsonDecode(response.body);
+        final dynamic responseData = jsonDecode(response.body);
         if (responseData.isNotEmpty) {
-          return Profile.fromJson(responseData[0]); // Assuming the first object is the required profile
+          return Profile.fromJson(responseData);
         } else {
           throw Exception("No profile data found");
         }
@@ -392,13 +392,13 @@ class PersonalInfoCard extends StatelessWidget {
           Divider(color: Colors.grey[300], thickness: 1),
           const SizedBox(height: 12),
           _buildRow(
-            _buildShadedBox(Icons.person, 'First Name', profile.userName),
+            _buildShadedBox(Icons.person, 'First Name', profile.userName  ?? 'N/A'),
             _buildShadedBox(Icons.cake, 'Date of Birth', ''),
           ),
           const SizedBox(height: 12),
           _buildRow(
-            _buildShadedBox(Icons.email, 'Email', profile.userEmailId),
-            _buildShadedBox(Icons.phone, 'Phone No.', profile.phoneNum),
+            _buildShadedBox(Icons.email, 'Email', profile.userEmailId  ?? 'N/A'),
+            _buildShadedBox(Icons.phone, 'Phone No.', profile.phoneNum  ?? 'N/A'),
           ),
           const SizedBox(height: 12),
           _buildRow(
@@ -523,12 +523,12 @@ class ParkingSpaceCard extends StatelessWidget {
 
           // Details in Shaded Boxes
           _buildRow(
-            _buildShadedBox('Slot', profile.allocatedSlotNumber),
-            _buildShadedBox('Vehicle Type', profile.vehicleType),
+            _buildShadedBox('Slot', profile.allocatedSlotNumber  ?? 'N/A'),
+            _buildShadedBox('Vehicle Type', profile.vehicleType  ?? 'N/A'),
           ),
           const SizedBox(height: 10),
           Center(
-            child: _buildShadedBox('Vehicle Model', profile.vehicleModel),
+            child: _buildShadedBox('Vehicle Model', profile.vehicleModel  ?? 'N/A'),
           ),
           const SizedBox(height: 20),
 

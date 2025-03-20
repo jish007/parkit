@@ -27,7 +27,7 @@ class PaymentFeeScreen extends StatelessWidget {
 
             // Sample Payment Details
             Text(
-              'Service Charge: \$20',
+              'Service Charge: Rs:200',
               style: TextStyle(
                 fontSize: 18.0,
                 color: Colors.white,
@@ -35,7 +35,7 @@ class PaymentFeeScreen extends StatelessWidget {
             ),
             SizedBox(height: 10),
             Text(
-              'Application Fee: \$50',
+              'Application Fee: Rs:500',
               style: TextStyle(
                 fontSize: 18.0,
                 color: Colors.white,
@@ -43,7 +43,7 @@ class PaymentFeeScreen extends StatelessWidget {
             ),
             SizedBox(height: 10),
             Text(
-              'Total: \$70',
+              'Total: Rs:700',
               style: TextStyle(
                 fontSize: 18.0,
                 color: Colors.white,
@@ -57,7 +57,7 @@ class PaymentFeeScreen extends StatelessWidget {
                 // Navigate to loading screen
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => LoadingScreen()),
+                  MaterialPageRoute(builder: (context) => RegisterLoadScreen()),
                 );
               },
               child: Text('Confirm Payment'),
@@ -74,7 +74,7 @@ class PaymentFeeScreen extends StatelessWidget {
   }
 }
 
-class LoadingScreen extends StatelessWidget {
+class RegisterLoadScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,7 +93,7 @@ class LoadingScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 20),
                   Text(
-                    'Processing Payment...',
+                    'Processing Application...',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18.0,
@@ -128,7 +128,7 @@ class SuccessScreen extends StatelessWidget {
             ),
             SizedBox(height: 20),
             Text(
-              'Payment Successful!',
+              'Applied Successfully! Our team will contact you shortly!',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 24.0,

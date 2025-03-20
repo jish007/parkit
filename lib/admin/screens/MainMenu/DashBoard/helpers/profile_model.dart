@@ -1,42 +1,42 @@
 class Profile {
   final String vehicleNumber;
-  final String phoneNum;
-  final String userName;
-  final int noOfVehicles;
-  final String vehicleType;
-  final String bookingDate;
-  final String userEmailId;
-  final bool paidStatus;
-  final double paidAmount;
-  final String allocatedSlotNumber;
-  final String parkedPropertyName;
-  final int durationOfAllocation;
-  final String paymentDate;
-  final String adminMailId;
-  final String vehicleModel;
-  final double totalAmount;
-  final String bookingTime;
+  final String? phoneNum;
+  final String? userName;
+  final int? noOfVehicles;
+  final String? vehicleType;
+  final String? bookingDate;
+  final String? userEmailId;
+  final bool? paidStatus;
+  final double? paidAmount;
+  final String? allocatedSlotNumber;
+  final String? parkedPropertyName;
+  final String? durationOfAllocation;
+  final String? paymentDate;
+  final String? adminMailId;
+  final String? vehicleModel;
+  final double? totalAmount;
+  final String? bookingTime;
   final bool? isBanned;
-  final int? fineAmount;
+  final double? fineAmount;
 
   Profile({
     required this.vehicleNumber,
-    required this.phoneNum,
-    required this.userName,
-    required this.noOfVehicles,
-    required this.vehicleType,
-    required this.bookingDate,
-    required this.userEmailId,
-    required this.paidStatus,
-    required this.paidAmount,
-    required this.allocatedSlotNumber,
-    required this.parkedPropertyName,
-    required this.durationOfAllocation,
-    required this.paymentDate,
-    required this.adminMailId,
-    required this.vehicleModel,
-    required this.totalAmount,
-    required this.bookingTime,
+     this.phoneNum,
+     this.userName,
+     this.noOfVehicles,
+     this.vehicleType,
+     this.bookingDate,
+     this.userEmailId,
+     this.paidStatus,
+     this.paidAmount,
+     this.allocatedSlotNumber,
+     this.parkedPropertyName,
+     this.durationOfAllocation,
+    this.paymentDate,
+    this.adminMailId,
+    this.vehicleModel,
+    this.totalAmount,
+    this.bookingTime,
     this.isBanned,
     this.fineAmount
   });

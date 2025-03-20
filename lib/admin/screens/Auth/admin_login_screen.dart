@@ -57,7 +57,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       });
     } else {
       await checkLogin();
-      if (status == "Admin Is Valid") {
+      if (status == "ADMIN_USER") {
         print("hai");
         _animationController.forward();
         Navigator.push(
@@ -65,7 +65,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           MaterialPageRoute(builder: (context) =>  LoadingScreen(destination : AdminMainMenu(adminMail: email))),
         );
       }
-      else if (status == "Super Admin Is Valid") {
+      else if (status == "SUPER_ADMIN") {
         _animationController.forward();
         Navigator.push(
           context,
@@ -196,7 +196,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const Text(
-                        'Admin login',
+                        'LOGIN',
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
@@ -341,8 +341,9 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       );
       print('Status Code: ${res.statusCode}');
       print('Response Body: ${res.body}');
+      final responseData = jsonDecode(res.body);
       setState(() {
-        status = res.body;
+        status = responseData['roleName'].toString();
       });
     } catch (e) {
       // Catch any errors that occur during the request

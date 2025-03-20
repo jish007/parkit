@@ -7,22 +7,22 @@ class ServiceScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 150),
-            const HeaderSection(),
-            const SizedBox(height: 50),
-            const EdgeImagesSection(),
-            const SizedBox(height: 50),
-            const AboutUsSection(),
-            const SizedBox(height: 100),
-            const ServicesCardsSection(),
-            const SizedBox(height: 50),
-            const EmbeddedYouTubeVideo(),
-            const SizedBox(height: 50),
-          ],
-        ),
-      );
+      child: Column(
+        children: [
+          const SizedBox(height: 150),
+          const HeaderSection(),
+          const SizedBox(height: 50),
+          const EdgeImagesSection(),
+          const SizedBox(height: 50),
+          const AboutUsSection(),
+          const SizedBox(height: 100),
+          const ServicesCardsSection(),
+          const SizedBox(height: 50),
+          const EmbeddedYouTubeVideo(),
+          const SizedBox(height: 50),
+        ],
+      ),
+    );
   }
 }
 

@@ -265,17 +265,17 @@ class _CustomDropdownFieldState extends State<CustomDropdownField> {
 
   List<Widget> _getDetailedInfo(String roleName) {
     switch (roleName) {
-      case 'ADMIN_USER':
+      case 'Auto Entry and Exit':
         return [
           const Text(
-            '• Admin: Full access to all features and settings.',
+            '• Automated barriers in entry and exit gates, which detects vehicle and only authorized vehicles can park \n • It includes ip camera, and automated vehicle detection barrier at exit and entry. \n • This feature provides admin portal for admin of the parking property and also application for users. \n • Peoples without application can also park, by using automated on-site parking feature. \n • Users have dedicated application to view nearby parking plots and real time slot availability and booking of parking slots. \n • Admin have dedicated website in which admin can control the parking plot which is assigned to admin, can view real-time slot availability, ban an user, view profiles of users. \n • Total amount for this feature depends up on the property, contact the super admin for more details',
             style: TextStyle(color: Colors.white70, fontSize: 14.0),
           ),
         ];
-      case 'NEW_USER':
+      case 'Qr code Entry and Exit':
         return [
           const Text(
-            '• Barcode Payment: New users can initiate and complete barcode-based payments.',
+            '• The QR-Based Smart Parking System provides a streamlined and efficient parking solution using QR code authentication for entry and exit, Instead of automated barriers, admins scan the QR code using a mobile device or scanner to verify and allow vehicle access. \n • This system ensures that only authorized users can park while eliminating the need for expensive automated barriers. \n • Users have a dedicated mobile application to scan QR codes for entry, find nearby parking plots, check real-time slot availability, and book parking slots in advance. For guests without the mobile app, an on-site QR code allows quick access through a simple scan-and-register process. Admins use a web-based portal to manage assigned parking areas, monitor real-time availability, view user profiles, and approve or deny access.\n • Total amount for this feature depends up on the property, contact the super admin for more details .',
             style: TextStyle(color: Colors.white70, fontSize: 14.0),
           ),
         ];

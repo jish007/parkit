@@ -13,6 +13,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:park_it/official_website/CustomWidgets/roles_dropdown.dart';
 import 'package:park_it/official_website/constants/image_strings.dart';
 import 'package:park_it/official_website/screens/JoinUs/location_popup.dart';
+import 'package:park_it/official_website/screens/JoinUs/payment_fee_screen.dart';
 import 'package:park_it/official_website/screens/JoinUs/popup.dart';
 
 class RightContainer extends StatefulWidget {
@@ -32,6 +33,7 @@ class _RightContainerState extends State<RightContainer> {
   final TextEditingController _propertyLocationController = TextEditingController();
   final TextEditingController _propertyDescriptionController = TextEditingController();
   final TextEditingController imageController = TextEditingController();
+  final TextEditingController _ownerPhoneNumController = TextEditingController();
 
   final String urlRoles = "http://localhost:9000/allRoles";
   final String urlSubmit = "http://localhost:9000/slotEnroll";
@@ -55,7 +57,7 @@ class _RightContainerState extends State<RightContainer> {
   String? longitude;
   late String location;
 
-  late String layoutImage;
+  late String layoutImage = "None";
 
   late String propertyImage;
 
@@ -130,15 +132,15 @@ class _RightContainerState extends State<RightContainer> {
                     'Roles',
                     roles,
                     // Roles options
-                    _adminNameController,
+                    _nameController,
                     // Pass the list of selected roles
                     isSmallScreen),
                 // Country and State Dropdowns
                 _buildDropdownTextFieldsRow(
                   'Country',
-                  ['USA', 'Canada', 'Mexico'],
+                  ['India'],
                   'State',
-                  ['California', 'Texas', 'New York'],
+                  ['Delhi', 'Tamil Nadu', 'Goa','Kerala'],
                   _selectedCountry,
                   _selectedState,
                   isSmallScreen,
@@ -146,9 +148,9 @@ class _RightContainerState extends State<RightContainer> {
                 // District and City Dropdowns
                 _buildDropdownTextFieldsRow1(
                   'District',
-                  ['District 1', 'District 2', 'District 3'],
+                  ['Pathanamthitta', 'Kottayam', 'Kollam','Alappuzha'],
                   'City',
-                  ['City A', 'City B', 'City C'],
+                  ['Aranmula', 'Ranni', 'Kozhencherry','Chengannur'],
                   _selectedDistrict,
                   _selectedCity,
                   isSmallScreen,
@@ -161,7 +163,7 @@ class _RightContainerState extends State<RightContainer> {
                     'Enter phone number of admin',
                     JoinUsSVG.person,
                     JoinUsSVG.phone,
-                    _nameController,
+                    _adminNameController,
                     _phoneController,
                     isSmallScreen),
                 // Email and Password Fields
@@ -193,8 +195,8 @@ class _RightContainerState extends State<RightContainer> {
                   'Choose Property Type',
                   JoinUsSVG.property,
                   'Image Upload',
-                  JoinUsSVG.attachment,
-                  imageController,
+                  JoinUsSVG.phone,
+                  _ownerPhoneNumController,
                   isSmallScreen,
                 ),
                 // Property Location Field with Buttons
@@ -225,12 +227,12 @@ class _RightContainerState extends State<RightContainer> {
                     builder: (context) {
                       return ElevatedButton(
                         onPressed: () {
-                          //_uploadImageToServer();
-                          // submitData();
+                          _uploadImageToServer();
+                          submitData();
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
-                              return PaymentPopup(); // This will show the payment popup
+                              return RegisterLoadScreen(); // This will show the payment popup
                             },
                           );
                         },
@@ -521,8 +523,8 @@ class _RightContainerState extends State<RightContainer> {
             });
           }),
           SizedBox(height: 12.0),
-          _buildLabeledTextFieldWithSeparateButtons('Property Layout Upload', '',
-              rightIconPath, rightButtonLabel, rightController),
+          _buildLabeledTextField(
+              "Owner's Phone Number", "Enter phone number", rightIconPath, rightController),
         ],
       );
     } else {
@@ -538,8 +540,8 @@ class _RightContainerState extends State<RightContainer> {
           })),
           SizedBox(width: 12.0),
           Expanded(
-            child: _buildLabeledTextFieldWithSeparateButtons('Property Layout Upload', '',
-                rightIconPath, rightButtonLabel, rightController),
+            child: _buildLabeledTextField(
+                "Owner's Phone Number", "Enter phone number", rightIconPath, rightController),
           ),
         ],
       );
@@ -563,7 +565,7 @@ class _RightContainerState extends State<RightContainer> {
               leftIconPath, leftButtonLabel, leftController),
           SizedBox(height: 12.0),
           _buildLabeledTextFieldWithSeparateButtons(
-              'File Upload', '', rightIconPath, rightButtonLabel, null),
+              'File Upload', 'Upload Excel Sheet', rightIconPath, rightButtonLabel, null),
         ],
       );
     } else {
@@ -577,7 +579,7 @@ class _RightContainerState extends State<RightContainer> {
           SizedBox(width: 12.0),
           Expanded(
             child: _buildLabeledTextFieldWithSeparateButtons(
-                'File Upload', '', rightIconPath, rightButtonLabel, null),
+                'File Upload', 'Upload Excel Sheet', rightIconPath, rightButtonLabel, null),
           ),
         ],
       );
@@ -641,7 +643,7 @@ class _RightContainerState extends State<RightContainer> {
               readOnly: true,
               controller: controller,
               decoration: InputDecoration(
-                hintText: isTrue ? 'File Uploaded' : hint,
+                hintText: hint,
                 hintStyle: TextStyle(
                   color:
                       const Color.fromARGB(255, 255, 255, 255).withOpacity(0.6),
@@ -674,9 +676,9 @@ class _RightContainerState extends State<RightContainer> {
                       });
                     } else if (buttonLabel == 'Upload') {
                       // Handle upload logic
-                      handleFileUpload();
+                      handleFileUpload(controller);
                     } else if (buttonLabel == 'Image Upload') {
-                      _pickAndUploadImage(label);
+                      _pickAndUploadImage(label,controller);
                     }
                   },
                   style: TextButton.styleFrom(
@@ -830,15 +832,15 @@ class _RightContainerState extends State<RightContainer> {
   }
 
   // Function to handle file upload and parse it
-  Future<void> handleFileUpload() async {
+  Future<void> handleFileUpload(TextEditingController? controller) async {
     Uint8List? fileBytes = await pickExcelFile();
 
     if (fileBytes != null) {
       try {
         List<Map<String, dynamic>> parsedData = parseExcelToJson(fileBytes);
-        isTrue = true;
         setState(() {
-          floorSlotData = parsedData; // Update the state with the parsed data
+          floorSlotData = parsedData;
+          controller?.text = "Excel Sheet Uploaded";
         });
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -862,51 +864,64 @@ class _RightContainerState extends State<RightContainer> {
     return null;
   }
 
+  /// Function to parse the Excel data dynamically and form the JSON output
   List<Map<String, dynamic>> parseExcelToJson(Uint8List fileBytes) {
     var excel = Excel.decodeBytes(fileBytes);
 
-    String sheetName =
-        excel.tables.keys.first; // Assuming you are reading the first sheet
+    String sheetName = excel.tables.keys.first; // Assuming first sheet
     var sheet = excel.tables[sheetName];
 
-    if (sheet == null || sheet.maxCols < 3 || sheet.maxRows < 2) {
-      throw Exception(
-          "Invalid Excel structure. Ensure columns: Floor, Slot Number, Vehicle Type exist.");
+    if (sheet == null || sheet.maxRows < 2) {
+      throw Exception("Invalid Excel structure. The sheet is empty or does not have enough rows.");
     }
 
     List<Map<String, dynamic>> parsedData = [];
+    Map<int, String> floorColumns = {};
 
-    // Loop through the sheet by floor
-    for (int col = 0; col < sheet.maxCols; col += 2) {
-      String? floorName =
-          _getCellValue(sheet.rows[0][col]); // Floor name from first row
-      if (floorName == null || floorName.isEmpty) continue;
+    // Identify floor name columns dynamically from the first row
+    for (int col = 0; col < sheet.maxCols; col++) {
+      String? floorName = _getCellValue(sheet.rows[0][col]);
+      if (floorName != null && floorName.isNotEmpty) {
+        floorColumns[col] = floorName;
+      }
+    }
+
+    // Process each identified floor column along with the corresponding vehicle type column
+    for (var entry in floorColumns.entries) {
+      int slotColIndex = entry.key;
+      String floorName = entry.value;
+
+      // Ensure the next column exists for vehicle types
+      int vehicleTypeColIndex = slotColIndex + 1;
+      if (vehicleTypeColIndex >= sheet.maxCols) continue; // Skip if vehicle type column is missing
 
       List<String> slotNumbers = [];
       List<String> vehicleTypes = [];
 
       // Loop through rows to collect slot numbers and vehicle types
       for (int row = 1; row < sheet.maxRows; row++) {
-        String? slot = _getCellValue(sheet.rows[row][col]);
-        String? vehicle = _getCellValue(sheet.rows[row][col + 1]);
+        String? slot = _getCellValue(sheet.rows[row][slotColIndex]);
+        String? vehicle = _getCellValue(sheet.rows[row][vehicleTypeColIndex]);
 
-        if (slot != null && vehicle != null) {
+        if (slot != null && slot.isNotEmpty && vehicle != null && vehicle.isNotEmpty) {
           slotNumbers.add(slot);
           vehicleTypes.add(vehicle);
         }
       }
 
-      parsedData.add({
-        "slotNumber": slotNumbers,
-        "floor": floorName,
-        "vehicleType": vehicleTypes,
-      });
+      if (slotNumbers.isNotEmpty && vehicleTypes.isNotEmpty) {
+        parsedData.add({
+          "slotNumber": slotNumbers,
+          "floor": floorName,
+          "vehicleType": vehicleTypes,
+        });
+      }
     }
 
     return parsedData;
   }
 
-  /// Helper function to safely get the value from a cell
+  /// Helper function to safely extract cell values
   String? _getCellValue(Data? cell) {
     if (cell == null) return null;
     if (cell.value is SharedString) {
@@ -918,64 +933,6 @@ class _RightContainerState extends State<RightContainer> {
     }
   }
 
-  /// Function to parse the Excel data and transform it into the desired format
-  /*List<Map<String, dynamic>> parseExcelToMap(Uint8List fileBytes) {
-    var excel = Excel.decodeBytes(fileBytes); // Decode the Excel file bytes
-
-    String sheetName =
-        excel.tables.keys.first; // Assuming you are reading the first sheet
-    var sheet = excel.tables[sheetName]; // Access the sheet
-
-    // Ensure the sheet is not empty
-    if (sheet == null || sheet.maxCols == 0 || sheet.maxRows == 0) {
-      throw Exception("Sheet is empty or invalid.");
-    }
-
-    List<Map<String, dynamic>> floorSlotData = [];
-
-    // The first row should contain floor names
-    List<dynamic> floorHeaders = sheet.rows[0];
-
-    // Loop through each column (for each floor)
-    for (int col = 0; col < floorHeaders.length; col++) {
-      var floorCell = floorHeaders[col];
-      String? floor = _getCellValue(floorCell); // Get the floor name safely
-
-      if (floor == null || floor.isEmpty)
-        continue; // Skip if the floor name is empty
-
-      List<String> slots = [];
-
-      // Start from the second row (index 1) for slot data
-      for (int row = 1; row < sheet.maxRows; row++) {
-        var slotCell = sheet.rows[row][col]; // Get the slot data
-        String? slot = _getCellValue(slotCell); // Safely extract the slot value
-        if (slot != null && slot.isNotEmpty) {
-          slots.add(slot); // Add the slot to the list
-        }
-      }
-
-      // Add the floor and its corresponding slot data to the list
-      floorSlotData.add({
-        "slotNumber": slots,
-        "floor": floor,
-      });
-    }
-
-    return floorSlotData;
-  }*/
-
-  /// Helper function to safely get the value from a cell
-  /*String? _getCellValue(Data? cell) {
-    if (cell == null) return null;
-    if (cell.value is SharedString) {
-      return cell.value.toString(); // Convert SharedString to String
-    } else if (cell.value is String) {
-      return cell.value as String;
-    } else {
-      return cell.value?.toString(); // Convert other types to String
-    }
-  }*/
 
   Future<void> submitData() async {
     Map<String, dynamic> userData = {};
@@ -989,7 +946,7 @@ class _RightContainerState extends State<RightContainer> {
     List<Map<String, dynamic>> roleData = _selectedRoles;
 
     for (var role in roleData) {
-      role["adminName"] = _adminNameController.text.toString();
+      role["adminMailId"] = _emailController.text.toString();
     }
 
     List<Map<String, dynamic>> ratesData = [];
@@ -1021,7 +978,8 @@ class _RightContainerState extends State<RightContainer> {
           'roleDto': roleData,
           'ratesDto': ratesData,
           'adminPhone': _phoneController.text.toString(),
-          'propertyType': propertyType
+          'propertyType': propertyType,
+          'adminMailId': _emailController.text.toString(),
         }),
       );
       print('Status Code: ${res.statusCode}');
@@ -1040,7 +998,7 @@ class _RightContainerState extends State<RightContainer> {
     }
   }
 
-  Future<void> _pickAndUploadImage(String type) async {
+  Future<void> _pickAndUploadImage(String type, TextEditingController? controller) async {
     final XFile? pickedFile =
         await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -1055,11 +1013,15 @@ class _RightContainerState extends State<RightContainer> {
 
       if(type == "Property Layout Upload"){
         layoutImage = base64Image;
-        print("in Layout");
+        setState(() {
+          controller?.text = "Property Layout Uploaded";
+        });
       }
       else if(type == "Property Image Upload"){
         propertyImage = base64Image;
-        print("in property");
+        setState(() {
+          controller?.text = "Property Image Uploaded";
+        });
       }
     }
   }
@@ -1087,6 +1049,16 @@ class _RightContainerState extends State<RightContainer> {
           'image': layoutImage,
           'propertyLocation': location,
           'propertyName': _propertyNameController.text.toString(),
+          'image2': propertyImage,
+          'propertyDesc': _propertyDescriptionController.text.toString(),
+          'propertyOwner': _nameController.text.toString(),
+          'ratePerHour': _paymentController.text.toString(),
+          'adminMailId': _emailController.text.toString(),
+          'ownerPhoneNum': _ownerPhoneNumController.text.toString(),
+          'city': _selectedCity.toString(),
+          'district': _selectedDistrict.toString(),
+          'state': _selectedState.toString(),
+          'country': _selectedCountry.toString(),
         }),
       );
       if (res.statusCode == 200) {
