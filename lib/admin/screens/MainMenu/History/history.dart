@@ -37,7 +37,7 @@ class _HistoryPageState extends State<HistoryPage> {
             'userName': profile.userName,
             'paidAmount': profile.paidAmount.toString(),
             'allocatedSlotNumber': profile.allocatedSlotNumber,
-            'bookingTime': profile.bookingDate,
+            'bookingDate': profile.bookingDate.toString(),
             'durationOfAllocation': profile.durationOfAllocation.toString(),
           };
         }).toList();
