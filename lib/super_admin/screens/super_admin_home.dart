@@ -437,7 +437,71 @@ class _SuperAdminHomeState extends State<SuperAdminHome> {
   }
 
   void onRejectPressed(String adminName) {
-    print("Rejected: $adminName");
+    showRejectPopup(context, adminName);
+  }
+
+  Future<void> rejectPropertyDetails(String adminMail, String reason) async {
+    try {
+      final response = await http.get(Uri.parse(
+          "${SpringUrls.verifyPropertyBySuperAdmin}?email=$adminMail"));
+
+      if (response.statusCode == 200) {
+        print(response.body);
+        setState(() {
+          verifyStatus = response.body.toString();
+        });
+      } else {
+        throw Exception("Failed");
+      }
+    } catch (error) {
+      print("Error fetching : $error");
+    }
+  }
+
+  void showRejectPopup(BuildContext context, String adminName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Column(
+            children: [
+              Icon(Icons.check_circle, size: 50, color: Colors.green),
+              // Success icon
+              SizedBox(height: 10),
+              Text(
+                "Verification Successful",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          content: Text(
+            "Admin $adminName has been verified successfully!",
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 16),
+          ),
+          actions: [
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close popup
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                ),
+                child: Text("Okay",
+                    style: TextStyle(fontSize: 16, color: Colors.white)),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override

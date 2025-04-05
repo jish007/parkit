@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:http/browser_client.dart';
 import 'package:park_it/admin/screens/MainMenu/Action/action_screen.dart';
 import 'package:park_it/admin/screens/MainMenu/DashBoard/dashboard.dart';
 import 'package:park_it/admin/screens/MainMenu/History/history.dart';
 import 'package:park_it/admin/screens/MainMenu/ParkingSpace/parking_space.dart';
 import 'package:park_it/admin/screens/MainMenu/Profile/profile_page.dart';
+import 'package:park_it/common/constants/spring_url.dart';
 
 class AdminMainMenu extends StatefulWidget {
   final String adminMail;
@@ -36,6 +38,23 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  Future<void> syncJotForm() async {
+    try {
+      var client = BrowserClient();
+      final response =
+      await client.get(Uri.parse(SpringUrls.getJotFormUrl));
+
+      if (response.statusCode == 200) {
+
+      } else {
+        throw Exception(
+            "Failed to load profiles. Status code: ${response.statusCode}");
+      }
+    } catch (error) {
+      print("Error fetching profiles: $error");
+    }
   }
 
   @override
@@ -194,9 +213,9 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
 
                       // Help Icon
                       IconButton(
-                        icon: Icon(Icons.help_outline),
+                        icon: Icon(Icons.sync),
                         onPressed: () {
-                          // Add help action here
+                          syncJotForm();
                         },
                         color: Colors.black54,
                       ),

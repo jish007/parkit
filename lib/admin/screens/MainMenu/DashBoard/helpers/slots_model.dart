@@ -15,6 +15,8 @@ class Slots {
   final String propertyType;
   final String adminMailId;
   final String? vehicleNum;
+  final String? startTime;
+  final String? exitTime;
 
 
   Slots({
@@ -33,7 +35,9 @@ class Slots {
     required this.adminPhone,
     required this.propertyType,
     required this.adminMailId,
-    this.vehicleNum
+    this.vehicleNum,
+    this.startTime,
+    this.exitTime,
   });
 
   // Factory method to parse JSON
@@ -55,6 +59,8 @@ class Slots {
       propertyType: json['propertyType'],
       adminMailId: json['adminMailId'],
       vehicleNum: json['vehicleNum'],
+      startTime: json['startTime'],
+      exitTime: json['exitTime'],
     );
   }
 }

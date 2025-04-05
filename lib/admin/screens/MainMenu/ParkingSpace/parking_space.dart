@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/browser_client.dart';
 import 'package:park_it/admin/screens/MainMenu/DashBoard/helpers/slots_model.dart';
+import 'package:park_it/admin/screens/MainMenu/Profile/profile_page.dart';
 import 'package:park_it/common/constants/spring_url.dart';
 
 class ParkingSpacePage extends StatefulWidget {
@@ -26,6 +28,8 @@ class _ParkingSpacePageState extends State<ParkingSpacePage>
 
   final Set<String> _bookedSpaces = {};
 
+  Timer? _timer;
+
   @override
   void initState() {
     super.initState();
@@ -37,21 +41,30 @@ class _ParkingSpacePageState extends State<ParkingSpacePage>
       return slots;
     });
     _tabController = TabController(length: 0, vsync: this);
+
+    // Start a timer that refreshes the UI every second
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      // Only rebuild if we're mounted and have data
+      if (mounted) {
+        setState(() {
+          // This will trigger a rebuild of the UI
+        });
+      }
+    });
+
   }
+
+  @override
+  void dispose() {
+    _timer?.cancel(); // Cancel the timer when the widget is disposed
+    _tabController.dispose();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Parking Space",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-      ),
       body: FutureBuilder<List<Slots>>(
         future: fullSlots,
         builder: (context, snapshot) {
@@ -265,13 +278,44 @@ class _ParkingSpacePageState extends State<ParkingSpacePage>
         final isCar = slotData.vehicleType.toLowerCase() == 'car';
         final isBike = slotData.vehicleType.toLowerCase() == 'bike';
 
+        // If the slot is booked, show vehicle image, vehicle number, and remaining time
         if (isBooked) {
-          return Image.asset(
-            isCar ? 'assets/admin/car_icon.png' : 'assets/admin/bike.png',
-            width: 280,
-            height: 280,
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(context,MaterialPageRoute(builder: (context) => ProfilePage(vehicleNum: slotData.vehicleNum.toString())));
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Vehicle image
+                Image.asset(
+                  isCar ? 'assets/admin/car_icon.png' : 'assets/admin/bike.png',
+                  width: 100,
+                  height: 100,
+                ),
+
+                // Vehicle number
+                if (slotData.vehicleNum != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Text(
+                      "${slotData.vehicleNum?.toUpperCase()}",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+
+                // Remaining time indicator
+                if (slotData.startTime != null && slotData.exitTime != null)
+                  _buildRemainingTimeIndicator(slotData.startTime!, slotData.exitTime!),
+              ],
+            ),
           );
         } else {
+          // If slot is not booked, just show the slot number
           return Text(
             slot,
             style: const TextStyle(
@@ -283,6 +327,90 @@ class _ParkingSpacePageState extends State<ParkingSpacePage>
         }
       },
     );
+  }
+
+// New widget to build the remaining time indicator
+  Widget _buildRemainingTimeIndicator(String startTimeStr, String exitTimeStr) {
+    // Parse the start and exit times
+    DateTime startTime = DateTime.parse(startTimeStr.replaceAll(' ', 'T'));
+    DateTime exitTime = DateTime.parse(exitTimeStr.replaceAll(' ', 'T'));
+    DateTime now = DateTime.now();
+
+    // Calculate total duration and remaining duration
+    Duration totalDuration = exitTime.difference(startTime);
+    Duration remainingDuration = exitTime.difference(now);
+
+    // Calculate the percentage of time remaining
+    double progressPercentage = 1.0;
+    if (totalDuration.inSeconds > 0) {
+      progressPercentage = remainingDuration.inSeconds / totalDuration.inSeconds;
+      // Ensure the percentage is between 0 and 1
+      progressPercentage = progressPercentage.clamp(0.0, 1.0);
+    }
+
+    // Format the remaining time
+    String remainingTime = "";
+    if (remainingDuration.inHours > 0) {
+      remainingTime = "${remainingDuration.inHours}h ${remainingDuration.inMinutes % 60}m";
+    } else if (remainingDuration.inMinutes > 0) {
+      remainingTime = "${remainingDuration.inMinutes}m ${remainingDuration.inSeconds % 60}s";
+    } else {
+      remainingTime = "${remainingDuration.inSeconds}s";
+    }
+
+    // If time is up or negative, show "Time's up"
+    if (remainingDuration.isNegative) {
+      remainingTime = "Time's up!";
+      progressPercentage = 0.0;
+    }
+
+    return Column(
+      children: [
+        // Remaining time text
+        Text(
+          remainingTime,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: remainingDuration.isNegative ? Colors.red : Colors.green,
+          ),
+        ),
+        const SizedBox(height: 4),
+        // Progress bar
+        Container(
+          width: 100,
+          height: 8,
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Stack(
+            children: [
+              FractionallySizedBox(
+                widthFactor: progressPercentage,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: _getColorForTimeRemaining(progressPercentage),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+// Helper function to get color based on time remaining
+  Color _getColorForTimeRemaining(double percentage) {
+    if (percentage > 0.66) {
+      return Colors.green;
+    } else if (percentage > 0.33) {
+      return Colors.orange;
+    } else {
+      return Colors.red;
+    }
   }
 
 

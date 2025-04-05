@@ -131,7 +131,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 SizedBox(height: 4),
                                 Text(
-                                  '${profileData.durationOfAllocation!} minutes',
+                                  '${profileData.bookingTime!}',
                                   style: TextStyle(fontSize: 16),
                                 ),
                               ],
