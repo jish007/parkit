@@ -195,6 +195,12 @@ class _SuperAdminHomeState extends State<SuperAdminHome> {
     showVerifyPopup(context, adminName);
   }
 
+  Future<void> onRejectPressed(
+      String adminMail, String adminName, BuildContext context) async {
+    rejectPropertyDetails(adminMail);
+    showRejectPopup(context, adminName);
+  }
+
   void showVerifyPopup(BuildContext context, String adminName) {
     showDialog(
       context: context,
@@ -436,14 +442,10 @@ class _SuperAdminHomeState extends State<SuperAdminHome> {
     }
   }
 
-  void onRejectPressed(String adminName) {
-    showRejectPopup(context, adminName);
-  }
-
-  Future<void> rejectPropertyDetails(String adminMail, String reason) async {
+  Future<void> rejectPropertyDetails(String adminMail) async {
     try {
       final response = await http.get(Uri.parse(
-          "${SpringUrls.verifyPropertyBySuperAdmin}?email=$adminMail"));
+          "${SpringUrls.rejectPropertyBySuperAdmin}?email=$adminMail"));
 
       if (response.statusCode == 200) {
         print(response.body);
@@ -467,18 +469,18 @@ class _SuperAdminHomeState extends State<SuperAdminHome> {
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Column(
             children: [
-              Icon(Icons.check_circle, size: 50, color: Colors.green),
+              Icon(Icons.error, size: 50, color: Colors.red),
               // Success icon
               SizedBox(height: 10),
               Text(
-                "Verification Successful",
+                "Rejected Successful",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                 textAlign: TextAlign.center,
               ),
             ],
           ),
           content: Text(
-            "Admin $adminName has been verified successfully!",
+            "Admin $adminName has been rejected successfully!",
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16),
           ),
@@ -659,7 +661,10 @@ class _SuperAdminHomeState extends State<SuperAdminHome> {
                                     SizedBox(width: 10),
                                     ElevatedButton(
                                       onPressed: () => onRejectPressed(
-                                          parking.adminName!),
+                                          parking.adminMailId!,
+                                          parking.adminName!,
+                                          context,
+                                      ),
                                       child: Text('Reject'),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.red,

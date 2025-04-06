@@ -75,7 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'User Name: ${profileData.userName!}',
+                                  'User Name: ${profileData.userName ?? 'N/A'}',
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -84,7 +84,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 SizedBox(height: 4),
                                 Text(
-                                  'Vehicle No: ${profileData.vehicleNumber.toUpperCase()}',
+                                  'Vehicle No: ${profileData.vehicleNumber.toUpperCase() }',
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: Colors.grey[700],
@@ -109,7 +109,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 SizedBox(height: 4),
                                 Text(
-                                  '${profileData.bookingDate!}',
+                                  profileData.bookingDate ?? 'N/A',
                                   style: TextStyle(fontSize: 16),
                                 ),
                               ],
@@ -131,7 +131,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 SizedBox(height: 4),
                                 Text(
-                                  '${profileData.bookingTime!}',
+                                  profileData.bookingTime ?? 'N/A',
                                   style: TextStyle(fontSize: 16),
                                 ),
                               ],
@@ -173,7 +173,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       color: Colors.green,
                                     ),
                                     Text(
-                                      'Rs:${profileData.paidAmount!}',
+                                      'Rs:${profileData.paidAmount ?? 'N/A'}',
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -402,8 +402,8 @@ class PersonalInfoCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           _buildRow(
-            _buildShadedBox(Icons.currency_rupee, 'Total Paid Amount', profile.totalAmount.toString()),
-            _buildShadedBox(Icons.currency_rupee, 'Fine Amount', profile.fineAmount.toString()),
+            _buildShadedBox(Icons.currency_rupee, 'Total Paid Amount', profile.totalAmount.toString() ?? 'N/A'),
+            _buildShadedBox(Icons.currency_rupee, 'Fine Amount', profile.fineAmount.toString() ?? 'N/A'),
           ),
         ],
       ),

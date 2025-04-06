@@ -81,10 +81,10 @@ class _TableContainerState extends State<TableContainer> {
                 return ListTile(
                   title: Row(
                     children: [
-                      Expanded(child: Text(item['username'])),
-                      Expanded(child: Text(item['type'])),
-                      Expanded(child: Text(item['numberPlate'])),
-                      Expanded(child: Text(item['time'])),
+                      Expanded(child: Text(item['username'] ?? 'N/A')),
+                      Expanded(child: Text(item['type'] ?? 'N/A')),
+                      Expanded(child: Text(item['numberPlate'] ?? 'N/A')),
+                      Expanded(child: Text(item['time'] ?? 'N/A')),
                     ],
                   ),
                   onTap: (){

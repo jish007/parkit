@@ -176,37 +176,37 @@ class _HistoryPageState extends State<HistoryPage> {
                                       Expanded(
                                         child: Padding(
                                           padding: const EdgeInsets.all(24.0), // Increased padding for more height
-                                          child: Text(order['userName'], style: TextStyle(color: Colors.black, fontSize: 18)),
+                                          child: Text(order['userName'] ?? 'N/A' , style: TextStyle(color: Colors.black, fontSize: 18)),
                                         ),
                                       ),
                                       Expanded(
                                         child: Padding(
                                           padding: const EdgeInsets.all(24.0),
-                                          child: Text(order['mailId'], style: TextStyle(color: Colors.black, fontSize: 18)),
+                                          child: Text(order['mailId'] ?? 'N/A' , style: TextStyle(color: Colors.black, fontSize: 18)),
                                         ),
                                       ),
                                       Expanded(
                                         child: Padding(
                                           padding: const EdgeInsets.all(24.0),
-                                          child: Text(order['paidAmount'], style: TextStyle(color: Colors.black, fontSize: 18)),
+                                          child: Text(order['paidAmount'] ?? 'N/A', style: TextStyle(color: Colors.black, fontSize: 18)),
                                         ),
                                       ),
                                       Expanded(
                                         child: Padding(
                                           padding: const EdgeInsets.all(24.0),
-                                          child: Text(order['allocatedSlotNumber'], style: TextStyle(color: Colors.black, fontSize: 18)),
+                                          child: Text(order['allocatedSlotNumber'] ?? 'N/A', style: TextStyle(color: Colors.black, fontSize: 18)),
                                         ),
                                       ),
                                       Expanded(
                                         child: Padding(
                                           padding: const EdgeInsets.all(24.0),
-                                          child: Text(order['bookingDate'], style: TextStyle(color: Colors.black, fontSize: 18)),
+                                          child: Text(order['bookingDate'] ?? 'N/A', style: TextStyle(color: Colors.black, fontSize: 18)),
                                         ),
                                       ),
                                       Expanded(
                                         child: Padding(
                                           padding: const EdgeInsets.all(24.0),
-                                          child: Text(order['durationOfAllocation'], style: TextStyle(color: Colors.black, fontSize: 18)),
+                                          child: Text(order['durationOfAllocation'] ?? 'N/A', style: TextStyle(color: Colors.black, fontSize: 18)),
                                         ),
                                       ),
                                       Padding(

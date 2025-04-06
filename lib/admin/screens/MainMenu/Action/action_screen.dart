@@ -157,7 +157,7 @@ class _ActionScreenState extends State<ActionScreen> {
                       showDialog(
                         context: context,
                         builder: (context) => ActionDialog(
-                            name: order['userName'],
+                            name: order['userName'] ?? 'N/A',
                             isBanned: order['banned'],
                             fineAmount: order['fineAmount']),
                       );
@@ -195,7 +195,7 @@ class _ActionScreenState extends State<ActionScreen> {
                                         child: Padding(
                                           padding:
                                           const EdgeInsets.all(24.0),
-                                          child: Text(order['userName'],
+                                          child: Text(order['userName'] ?? 'N/A',
                                               style: TextStyle(
                                                   color: Colors.black,
                                                   fontSize: 15)),
@@ -264,7 +264,7 @@ class _ActionScreenState extends State<ActionScreen> {
                                 Expanded(
                                   child: Padding(
                                     padding: const EdgeInsets.all(24.0),
-                                    child: Text(order['userEmailId'],
+                                    child: Text(order['userEmailId'] ?? 'N/A',
                                         style: TextStyle(
                                             color: Colors.black,
                                             fontSize: 15)),
@@ -273,7 +273,7 @@ class _ActionScreenState extends State<ActionScreen> {
                                 Expanded(
                                   child: Padding(
                                     padding: const EdgeInsets.all(24.0),
-                                    child: Text(order['bookingTime'],
+                                    child: Text(order['bookingTime'] ?? 'N/A',
                                         style: TextStyle(
                                             color: Colors.black,
                                             fontSize: 15)),
@@ -283,7 +283,7 @@ class _ActionScreenState extends State<ActionScreen> {
                                   child: Padding(
                                     padding: const EdgeInsets.all(24.0),
                                     child: Text(
-                                        order['durationOfAllocation'],
+                                        order['durationOfAllocation'] ?? 'N/A',
                                         style: TextStyle(
                                             color: Colors.black,
                                             fontSize: 15)),

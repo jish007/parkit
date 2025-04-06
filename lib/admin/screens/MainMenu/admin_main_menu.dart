@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/browser_client.dart';
+import 'package:park_it/admin/screens/Auth/admin_login_screen.dart';
 import 'package:park_it/admin/screens/MainMenu/Action/action_screen.dart';
 import 'package:park_it/admin/screens/MainMenu/DashBoard/dashboard.dart';
 import 'package:park_it/admin/screens/MainMenu/History/history.dart';
@@ -44,10 +45,26 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
     try {
       var client = BrowserClient();
       final response =
-      await client.get(Uri.parse(SpringUrls.getJotFormUrl));
+      await client.get(Uri.parse("${SpringUrls.getJotFormUrl}?adminMailId=${widget.adminMail.toString()}"));
 
       if (response.statusCode == 200) {
 
+      } else {
+        throw Exception(
+            "Failed to load profiles. Status code: ${response.statusCode}");
+      }
+    } catch (error) {
+      print("Error fetching profiles: $error");
+    }
+  }
+  Future<void> logOutAdmin() async {
+    try {
+      var client = BrowserClient();
+      final response =
+      await client.get(Uri.parse("${SpringUrls.logoutUrl}?adminMailId=${widget.adminMail.toString()}"));
+
+      if (response.statusCode == 200) {
+        Navigator.push(context,MaterialPageRoute(builder: (context) => const LoginPage()));
       } else {
         throw Exception(
             "Failed to load profiles. Status code: ${response.statusCode}");
@@ -204,9 +221,9 @@ class _AdminMainMenuState extends State<AdminMainMenu> {
 
                       // Profile Icon
                       IconButton(
-                        icon: Icon(Icons.person),
+                        icon: Icon(Icons.logout),
                         onPressed: () {
-                          // Add profile action here
+                          logOutAdmin();
                         },
                         color: Colors.black54,
                       ),

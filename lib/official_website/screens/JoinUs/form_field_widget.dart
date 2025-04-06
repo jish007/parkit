@@ -66,6 +66,8 @@ class _RightContainerState extends State<RightContainer> {
 
   bool isToggled = false;
 
+  bool submitBtnValidity = false;
+
   List<Map<String, dynamic>> _selectedRoles = [];
 
   @override
@@ -227,14 +229,21 @@ class _RightContainerState extends State<RightContainer> {
                     builder: (context) {
                       return ElevatedButton(
                         onPressed: () {
-                          _uploadImageToServer();
-                          submitData();
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return RegisterLoadScreen(); // This will show the payment popup
-                            },
-                          );
+                          if(submitBtnValidity){
+                            //_uploadImageToServer();
+                            //submitData();
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return RegisterLoadScreen(); // This will show the payment popup
+                              },
+                            );
+                          }
+                          else{
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Please enter all the details")),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.symmetric(
@@ -842,6 +851,9 @@ class _RightContainerState extends State<RightContainer> {
           floorSlotData = parsedData;
           controller?.text = "Excel Sheet Uploaded";
         });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Excel Sheet Uploaded")),
+        );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error parsing Excel: ${e.toString()}')),
@@ -1021,7 +1033,12 @@ class _RightContainerState extends State<RightContainer> {
         propertyImage = base64Image;
         setState(() {
           controller?.text = "Property Image Uploaded";
+          submitBtnValidity = true;
         });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Property Image Uploaded")),
+        );
+
       }
     }
   }
